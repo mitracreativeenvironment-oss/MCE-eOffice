@@ -4,30 +4,30 @@
     class="fixed inset-y-0 right-0 z-40 w-full max-w-xl bg-slate-900/95 backdrop-blur-2xl border-l border-slate-700/70 shadow-2xl flex flex-col transform transition-all duration-300"
   >
     <!-- Header -->
-    <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
+    <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/70">
       <div class="flex items-center gap-3.5">
         <div
           class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner border border-white/10"
-          :style="{ backgroundColor: agent.color + '25', borderColor: agent.color + '60' }"
+          :style="{ backgroundColor: (agent.agent_color || '#3B82F6') + '25', borderColor: (agent.agent_color || '#3B82F6') + '60' }"
         >
-          {{ agent.emoji }}
+          {{ agent.agent_emoji || '🤖' }}
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h2 class="text-base font-bold text-white tracking-tight">{{ agent.name }}</h2>
+            <h2 class="text-base font-bold text-white tracking-tight">{{ agent.agent_name }}</h2>
             <span
               class="px-2 py-0.5 text-[10px] font-semibold uppercase rounded-full text-white"
-              :style="{ backgroundColor: agent.color }"
+              :style="{ backgroundColor: agent.agent_color || '#3B82F6' }"
             >
-              {{ agent.division }}
+              {{ agent.division_label }}
             </span>
           </div>
           <div class="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
-            <span>Meja: <strong class="text-slate-200">{{ agent.deskCode }}</strong></span>
+            <span>Meja: <strong class="text-slate-200">{{ agent.desk_code }}</strong> (Lt {{ agent.floor_level }})</span>
             <span>•</span>
             <span class="flex items-center gap-1 text-emerald-400 font-mono text-[11px]">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              9Router: {{ agent.model }}
+              Tier: {{ agent.preferred_model_tier || 'coding' }}
             </span>
           </div>
         </div>
@@ -42,7 +42,7 @@
     </div>
 
     <!-- Mode Tabs -->
-    <div class="flex border-b border-slate-800 px-5 bg-slate-950/30">
+    <div class="flex border-b border-slate-800 px-5 bg-slate-950/40">
       <button
         @click="activeTab = 'chat'"
         :class="[
@@ -80,26 +80,34 @@
 
     <!-- Tab 1: Chat Messages -->
     <div v-if="activeTab === 'chat'" class="flex-1 overflow-y-auto p-5 space-y-4">
+      <div v-if="isLoadingMessages" class="py-8 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
+        <span class="w-5 h-5 rounded-full border-2 border-sky-400 border-t-transparent animate-spin"></span>
+        <span>Membuka sesi obrolan dengan {{ agent.agent_name }}...</span>
+      </div>
+
       <div
         v-for="(msg, index) in messages"
         :key="index"
         :class="[
           'flex flex-col max-w-[88%] rounded-2xl p-4 text-xs leading-relaxed shadow-md',
-          msg.sender === 'user'
+          msg.sender_type === 'user'
             ? 'ml-auto bg-blue-600 text-white rounded-br-sm'
             : 'mr-auto bg-slate-800/90 border border-slate-700 text-slate-200 rounded-bl-sm'
         ]"
       >
         <div class="flex items-center justify-between text-[10px] opacity-75 mb-1.5 font-medium">
-          <span>{{ msg.sender === 'user' ? 'Anda' : agent.name }}</span>
-          <span>{{ msg.time }}</span>
+          <span>{{ msg.sender_type === 'user' ? 'Anda' : agent.agent_name }}</span>
+          <span v-if="msg.model_used" class="font-mono text-[9px] text-sky-400 px-1.5 py-0.2 bg-slate-900 rounded">
+            {{ msg.model_used }}
+          </span>
+          <span>{{ formatTime(msg.created_at) }}</span>
         </div>
-        <div class="whitespace-pre-wrap font-sans">{{ msg.text }}</div>
+        <div class="whitespace-pre-wrap font-sans">{{ msg.content }}</div>
       </div>
 
       <div v-if="isThinking" class="mr-auto bg-slate-800/80 border border-slate-700/80 text-sky-300 rounded-2xl rounded-bl-sm p-3.5 text-xs flex items-center gap-2.5">
         <span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
-        <span class="italic font-mono text-[11px]">{{ agent.name }} sedang berpikir via 9Router...</span>
+        <span class="italic font-mono text-[11px]">{{ agent.agent_name }} sedang memproses via 9Router Gateway...</span>
       </div>
     </div>
 
@@ -107,10 +115,10 @@
     <div v-else-if="activeTab === 'task'" class="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
       <div class="bg-blue-950/30 border border-blue-500/30 rounded-2xl p-4 text-blue-200">
         <h4 class="font-bold text-white mb-1 flex items-center gap-2">
-          <span>🎯 Format Deliverables Terstandar</span>
+          <span>🎯 Pendelegasian Tugas & Deliverables Formal</span>
         </h4>
         <p class="text-[11px] text-slate-300 leading-relaxed">
-          Tugas yang Anda delegasikan ke <strong>{{ agent.name }}</strong> akan dikerjakan sesuai SOP repositori <em>agency-agents</em> dan menghasilkan artefak nyata (kode, skema, atau laporan).
+          Tugas yang Anda delegasikan ke <strong>{{ agent.agent_name }}</strong> akan diproses langsung oleh engine AI di 9Router dan menghasilkan artefak nyata yang disimpan di basis data MySQL.
         </p>
       </div>
 
@@ -119,7 +127,7 @@
         <input
           v-model="taskTitle"
           type="text"
-          placeholder="Misal: Buat Filter Autentikasi JWT RS256 di CI4"
+          placeholder="Misal: Buat Arsitektur Skema Database MySQL untuk Modul Billing"
           class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-sky-500"
         />
       </div>
@@ -129,36 +137,57 @@
         <textarea
           v-model="taskBrief"
           rows="5"
-          placeholder="Jelaskan kebutuhan fungsional, batasan teknologi, dan output yang diharapkan..."
+          placeholder="Jelaskan kebutuhan fungsional, spesifikasi teknis, dan output deliverable yang diharapkan..."
           class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-sky-500 resize-none font-mono"
         ></textarea>
       </div>
 
       <button
         @click="submitTask"
-        :disabled="isThinking || !taskTitle.trim()"
+        :disabled="isThinking || !taskTitle.trim() || !taskBrief.trim()"
         class="w-full py-3 bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-500 hover:to-sky-500 disabled:opacity-50 text-white rounded-xl font-bold shadow-lg shadow-sky-500/20 transition-all flex items-center justify-center gap-2"
       >
-        <span>🚀 Delegasikan Tugas ke Meja {{ agent.deskCode }}</span>
+        <span>🚀 Delegasikan Tugas ke Meja {{ agent.desk_code }}</span>
       </button>
+
+      <!-- Task Result Preview -->
+      <div v-if="taskResult" class="mt-4 p-4 bg-slate-950 border border-emerald-500/40 rounded-2xl space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-emerald-400 font-bold uppercase text-[10px]">Deliverable Siap:</span>
+          <span class="text-[10px] text-slate-400">Status: {{ taskResult.status }}</span>
+        </div>
+        <div class="text-slate-200 font-mono text-[11px] whitespace-pre-wrap max-h-60 overflow-y-auto p-3 bg-slate-900 rounded-xl border border-slate-800">
+          {{ taskResult.final_deliverable }}
+        </div>
+      </div>
     </div>
 
     <!-- Tab 3: SOP & Persona -->
     <div v-else class="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
-      <div class="space-y-1.5">
-        <h4 class="font-bold text-sky-400 uppercase text-[10px] tracking-wider">Filosofi & Vibe</h4>
-        <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl italic text-slate-300">
-          "{{ agent.slug.replace(/-/g, ' ') }}" — Spesialisasi domain tingkat tinggi di lingkungan Kantor 3D MCE-eOffice.
-        </div>
+      <div v-if="isLoadingProfile" class="py-8 text-center text-slate-400 flex flex-col items-center gap-2">
+        <span class="w-5 h-5 rounded-full border-2 border-sky-400 border-t-transparent animate-spin"></span>
+        <span>Memuat profil lengkap & SOP...</span>
       </div>
 
-      <div class="space-y-1.5">
-        <h4 class="font-bold text-sky-400 uppercase text-[10px] tracking-wider">Pola Komunikasi & Guardrails</h4>
-        <ul class="list-disc list-inside space-y-1 text-slate-300 bg-slate-950 p-3.5 border border-slate-800 rounded-xl">
-          <li>Berbicara langsung ke pokok permasalahan teknis.</li>
-          <li>Menyajikan kode produksi utuh (zero pseudo-code).</li>
-          <li>Mematuhi batas peran divisi dan protokol 9Router.</li>
-        </ul>
+      <div v-else class="space-y-4">
+        <div class="space-y-1.5">
+          <h4 class="font-bold text-sky-400 uppercase text-[10px] tracking-wider">Filosofi & Vibe</h4>
+          <div class="p-3.5 bg-slate-950 border border-slate-800 rounded-xl italic text-slate-300">
+            "{{ agentProfile?.vibe || agent.agent_vibe }}"
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <h4 class="font-bold text-sky-400 uppercase text-[10px] tracking-wider">Deskripsi Peran</h4>
+          <div class="p-3.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-300">
+            {{ agentProfile?.description || agent.agent_description }}
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <h4 class="font-bold text-sky-400 uppercase text-[10px] tracking-wider">Instruksi Sistem (System Prompt)</h4>
+          <pre class="p-3.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-300 font-mono text-[11px] whitespace-pre-wrap max-h-72 overflow-y-auto">{{ agentProfile?.system_prompt }}</pre>
+        </div>
       </div>
     </div>
 
@@ -168,7 +197,7 @@
         <input
           v-model="inputMessage"
           type="text"
-          :placeholder="'Tanyakan sesuatu pada ' + agent.name + '...'"
+          :placeholder="'Tanyakan sesuatu pada ' + agent.agent_name + '...'"
           :disabled="isThinking"
           class="flex-1 bg-slate-900 border border-slate-700/80 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 transition-all"
         />
@@ -196,73 +225,156 @@ const props = defineProps({
 
 defineEmits(['close'])
 
+const API_BASE = 'http://127.0.0.1:8080/api/v1'
+
 const activeTab = ref('chat')
 const inputMessage = ref('')
 const isThinking = ref(false)
+const isLoadingMessages = ref(false)
+const isLoadingProfile = ref(false)
+
+const currentConversation = ref(null)
+const messages = ref([])
+const agentProfile = ref(null)
+
 const taskTitle = ref('')
 const taskBrief = ref('')
+const taskResult = ref(null)
 
-const messages = ref([])
+function formatTime(dateStr) {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
 
+// When agent is selected, initiate chat session with character
 watch(
   () => props.agent,
-  (newAgent) => {
+  async (newAgent) => {
     if (newAgent) {
-      messages.value = [
-        {
-          sender: 'agent',
-          text: `Halo! Saya ${newAgent.name} (${newAgent.division}). Saya bertugas di meja ${newAgent.deskCode}. Ada instruksi atau masalah teknis yang bisa saya selesaikan untuk Anda hari ini?`,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        },
-      ]
+      activeTab.value = 'chat'
+      taskResult.value = null
+      taskTitle.value = ''
+      taskBrief.value = ''
+      await initChatSession(newAgent)
+      loadAgentProfile(newAgent.agent_id)
     }
   },
   { immediate: true }
 )
 
-function sendMessage() {
-  const text = inputMessage.value.trim()
-  if (!text) return
+async function initChatSession(char) {
+  isLoadingMessages.value = true
+  try {
+    const res = await fetch(`${API_BASE}/characters/${char.character_id}/interact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    })
+    if (res.ok) {
+      const json = await res.json()
+      if (json.data) {
+        currentConversation.value = json.data.conversation
+        messages.value = json.data.messages || []
+      }
+    }
+  } catch (err) {
+    console.error('Failed to init chat session:', err)
+  } finally {
+    isLoadingMessages.value = false
+  }
+}
 
+async function loadAgentProfile(agentId) {
+  isLoadingProfile.value = true
+  try {
+    const res = await fetch(`${API_BASE}/agents/${agentId}`)
+    if (res.ok) {
+      const json = await res.json()
+      if (json.data) {
+        agentProfile.value = json.data
+      }
+    }
+  } catch (err) {
+    console.error('Failed to load agent profile:', err)
+  } finally {
+    isLoadingProfile.value = false
+  }
+}
+
+async function sendMessage() {
+  const text = inputMessage.value.trim()
+  if (!text || !currentConversation.value) return
+
+  const userTime = new Date().toISOString()
   messages.value.push({
-    sender: 'user',
-    text,
-    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    sender_type: 'user',
+    content: text,
+    created_at: userTime,
   })
 
   inputMessage.value = ''
   isThinking.value = true
 
-  // Simulate Smart Response through 9Router gateway
-  setTimeout(() => {
-    isThinking.value = false
-    messages.value.push({
-      sender: 'agent',
-      text: `[9Router: ${props.agent.model}]\n\nPesan Anda: "${text}" telah diterima. Berdasarkan persona ${props.agent.name}, saya akan menyusun solusi teknis terstruktur sesuai standar CodeIgniter 4 dan Three.js.`,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+  try {
+    const res = await fetch(`${API_BASE}/conversations/${currentConversation.value.id}/send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text }),
     })
-  }, 1200)
+
+    if (res.ok) {
+      const json = await res.json()
+      if (json.data) {
+        messages.value.push({
+          sender_type: 'agent',
+          content: json.data.reply,
+          model_used: json.data.model,
+          created_at: json.data.created_at || new Date().toISOString(),
+        })
+      }
+    } else {
+      messages.value.push({
+        sender_type: 'agent',
+        content: `Maaf, terjadi kesalahan saat menghubungi server API (HTTP ${res.status}).`,
+        created_at: new Date().toISOString(),
+      })
+    }
+  } catch (err) {
+    messages.value.push({
+      sender_type: 'agent',
+      content: `Koneksi ke backend CodeIgniter 4 gagal: ${err.message}`,
+      created_at: new Date().toISOString(),
+    })
+  } finally {
+    isThinking.value = false
+  }
 }
 
-function submitTask() {
-  if (!taskTitle.value.trim()) return
-  activeTab.value = 'chat'
-  messages.value.push({
-    sender: 'user',
-    text: `📋 [DELEGASI TUGAS]\nJudul: ${taskTitle.value}\nBrief: ${taskBrief.value || 'Sesuai standar arsitektur.'}`,
-    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-  })
+async function submitTask() {
+  if (!taskTitle.value.trim() || !taskBrief.value.trim()) return
 
   isThinking.value = true
-  setTimeout(() => {
-    isThinking.value = false
-    messages.value.push({
-      sender: 'agent',
-      text: `✅ Tugas "${taskTitle.value}" telah dimasukkan ke dalam antrean eksekusi meja ${props.agent.deskCode}. Deliverables akan disajikan begitu selesai diproses via model ${props.agent.model}.`,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+  try {
+    const res = await fetch(`${API_BASE}/tasks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        lead_agent_id: props.agent.agent_id,
+        title: taskTitle.value,
+        brief_input: taskBrief.value,
+      }),
     })
-    taskTitle.value = ''
-    taskBrief.value = ''
-  }, 1500)
+
+    if (res.ok) {
+      const json = await res.json()
+      if (json.data) {
+        taskResult.value = json.data
+      }
+    }
+  } catch (err) {
+    console.error('Failed to submit task:', err)
+  } finally {
+    isThinking.value = false
+  }
 }
 </script>

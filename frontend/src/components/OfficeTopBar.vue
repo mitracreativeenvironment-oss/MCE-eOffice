@@ -20,22 +20,31 @@
     <div class="hidden md:flex items-center gap-4">
       <!-- 9Router Status Pill -->
       <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-700/60 px-3.5 py-1.5 rounded-full text-xs font-mono shadow-inner">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span
+          class="w-2 h-2 rounded-full"
+          :class="stats.router_gateway?.online ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'"
+        ></span>
         <span class="text-slate-300">9Router:</span>
-        <span class="text-emerald-400 font-semibold">Online (:20128)</span>
+        <span
+          :class="stats.router_gateway?.online ? 'text-emerald-400 font-semibold' : 'text-amber-400 font-semibold'"
+        >
+          {{ stats.router_gateway?.online ? 'Online (:20128)' : 'Standby / Local Proxy' }}
+        </span>
       </div>
 
       <!-- CI4 Backend Status Pill -->
       <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-700/60 px-3.5 py-1.5 rounded-full text-xs font-mono shadow-inner">
-        <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+        <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
         <span class="text-slate-300">CI4 API:</span>
-        <span class="text-sky-400 font-semibold">Active</span>
+        <span class="text-sky-400 font-semibold">Port 8080 (Connected)</span>
       </div>
 
       <!-- Total Agents Count -->
       <div class="text-xs text-slate-400 font-medium flex items-center gap-1.5 bg-slate-900/50 px-3 py-1.5 rounded-full border border-slate-800">
         <span>👥</span>
-        <span>Katalog: <strong class="text-white">283 Agen</strong> (18 Divisi)</span>
+        <span>
+          Katalog: <strong class="text-white">{{ stats.total_agents || 283 }} Agen</strong> ({{ stats.total_divisions || 18 }} Divisi)
+        </span>
       </div>
     </div>
 
@@ -57,4 +66,30 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
+
+const stats = ref({
+  total_agents: 283,
+  total_divisions: 18,
+  router_gateway: { online: false },
+})
+
+async function fetchStats() {
+  try {
+    const res = await fetch('http://127.0.0.1:8080/api/v1/office/stats')
+    if (res.ok) {
+      const json = await res.json()
+      if (json.data) {
+        stats.value = json.data
+      }
+    }
+  } catch (err) {
+    console.warn('Could not fetch office stats:', err)
+  }
+}
+
+onMounted(() => {
+  fetchStats()
+  setInterval(fetchStats, 10000)
+})
 </script>
