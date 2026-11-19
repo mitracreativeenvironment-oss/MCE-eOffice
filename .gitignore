@@ -9,6 +9,7 @@
 # External / Local Tooling
 my9router/
 9router/
+scratch/
 
 # Backend (CodeIgniter 4)
 backend/writable/cache/*
