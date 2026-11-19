@@ -127,3 +127,4 @@ class RouterService
 1. **Sangat Cepat:** Tidak ada perantara middleware yang menambah jeda waktu (latensi).
 2. **Mudah Dirawat:** Cukup PHP XAMPP + 9Router (Node.js).
 3. **Failover Otomatis:** Jika salah satu provider AI down atau terkena limit rate 429, 9Router langsung memindahkan ke model cadangan tanpa mengganggu percakapan avatar 3D pengguna.
+
