@@ -10,9 +10,9 @@
     >
       <div class="w-12 h-12 rounded-full border-4 border-sky-500/30 border-t-sky-400 animate-spin"></div>
       <div class="text-center">
-        <h3 class="font-bold text-base tracking-wide">Memuat Kompleks Perkantoran 3D MCE-eOffice...</h3>
+        <h3 class="font-bold text-base tracking-wide">Menata Kompleks Perkantoran 3D MCE-eOffice...</h3>
         <p class="text-xs text-slate-400 mt-1">
-          Menata 18 Gedung Divisi, Lautan Pantai, Kebun Kelapa, & Aktivitas Jalan Raya
+          Menyesuaikan Ukuran 18 Gedung Divisi Sesuai Jumlah Anggota, Laut Pantai, & Jalan Raya
         </p>
       </div>
     </div>
@@ -98,39 +98,31 @@
         >
           <option value="">🏛️ Lompat ke Gedung Kantor Divisi...</option>
           <option v-for="b in divisionalBuildings" :key="b.id" :value="b.id">
-            {{ b.emoji }} Gedung {{ b.name }} ({{ b.zone }})
+            {{ b.emoji }} {{ b.name }} ({{ getDivisionAgentCount(b.id) }} Agen)
           </option>
         </select>
-
-        <div class="bg-slate-900/85 backdrop-blur-md border border-slate-700/70 text-slate-400 px-3 py-2 rounded-xl text-xs font-mono shadow-xl flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>18 Gedung Kantor • Pantai & Jalan Raya Aktif</span>
-        </div>
       </div>
     </div>
 
-    <!-- Active Hover Tooltip -->
+    <!-- Agent Tooltip on Hover -->
     <div
       v-if="hoveredCharacter"
-      :style="{ left: tooltipPos.x + 15 + 'px', top: tooltipPos.y + 15 + 'px' }"
-      class="pointer-events-none fixed z-30 bg-slate-900/95 backdrop-blur-md border border-sky-500/50 px-4 py-2.5 rounded-2xl shadow-2xl text-xs flex items-center gap-3 transform transition-all duration-75"
+      class="fixed z-30 pointer-events-none transform -translate-x-1/2 -translate-y-full mb-4 px-3 py-2 rounded-xl bg-slate-900/95 backdrop-blur-md border border-slate-700 shadow-2xl flex items-center gap-2.5"
+      :style="{ left: tooltipPos.x + 'px', top: tooltipPos.y + 'px' }"
     >
-      <div
-        class="w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-inner border border-white/10"
-        :style="{ backgroundColor: (hoveredCharacter.agent_color || '#3B82F6') + '30' }"
-      >
-        {{ hoveredCharacter.agent_emoji || '🤖' }}
-      </div>
+      <span class="text-xl">{{ hoveredCharacter.agent_emoji }}</span>
       <div>
-        <div class="font-bold text-white flex items-center gap-1.5">
+        <div class="text-xs font-bold text-white flex items-center gap-2">
           {{ hoveredCharacter.agent_name }}
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span
+            class="px-1.5 py-0.2 text-[9px] uppercase font-bold rounded text-white"
+            :style="{ backgroundColor: hoveredCharacter.agent_color || '#3B82F6' }"
+          >
+            {{ hoveredCharacter.division_label }}
+          </span>
         </div>
-        <div class="text-[11px] text-sky-400 font-medium">
-          Gedung {{ hoveredCharacter.division_label }} • Meja {{ hoveredCharacter.desk_code }}
-        </div>
-        <div class="text-[10px] text-slate-400 italic max-w-xs truncate">
-          {{ hoveredCharacter.agent_vibe }}
+        <div class="text-[10px] text-slate-400 font-mono">
+          Meja {{ hoveredCharacter.desk_code }} • Klik untuk berinteraksi
         </div>
       </div>
     </div>
@@ -155,23 +147,23 @@ const charactersData = ref([])
 
 // 4 Campus Zones
 const campusZones = [
-  { id: 'all', emoji: '🌐', name: 'Semua Area', cam: { x: 0, y: 75, z: 95, tx: 0, ty: 0, tz: 5 } },
-  { id: 'beach', emoji: '🏖️', name: 'Tepi Pantai (Belakang)', cam: { x: 0, y: 35, z: -10, tx: 0, ty: 0, tz: -35 } },
-  { id: 'creative', emoji: '🎨', name: 'Plaza Kreatif & Bisnis', cam: { x: 0, y: 38, z: 20, tx: 0, ty: 0, tz: -10 } },
-  { id: 'tech', emoji: '💻', name: 'Quad Tech & Pertahanan', cam: { x: 0, y: 38, z: 40, tx: 0, ty: 0, tz: 10 } },
-  { id: 'avenue', emoji: '🚗', name: 'Jalan Raya & Boulevard (Depan)', cam: { x: 0, y: 32, z: 80, tx: 0, ty: 0, tz: 45 } },
+  { id: 'all', emoji: '🌐', name: 'Semua Area', cam: { x: 0, y: 85, z: 105, tx: 0, ty: 0, tz: 5 } },
+  { id: 'beach', emoji: '🏖️', name: 'Tepi Pantai (Belakang)', cam: { x: 0, y: 40, z: -10, tx: 0, ty: 0, tz: -35 } },
+  { id: 'creative', emoji: '🎨', name: 'Plaza Kreatif & Bisnis', cam: { x: 0, y: 42, z: 22, tx: 0, ty: 0, tz: -10 } },
+  { id: 'tech', emoji: '💻', name: 'Quad Tech & Pertahanan', cam: { x: 0, y: 44, z: 45, tx: 0, ty: 0, tz: 10 } },
+  { id: 'avenue', emoji: '🚗', name: 'Jalan Raya & Boulevard (Depan)', cam: { x: 0, y: 35, z: 85, tx: 0, ty: 0, tz: 45 } },
 ]
 
-// 18 Divisional Standalone Buildings Configuration
+// 18 Divisional Standalone Buildings Configuration with calibrated spatial coordinates
 const divisionalBuildings = [
-  // Zone 1: Front Avenue (Z = 28)
-  { id: 'marketing', name: 'Marketing', emoji: '📢', color: 0xf97316, x: -34, z: 28, style: 'billboard', zone: 'Depan / Boulevard' },
-  { id: 'support', name: 'Support', emoji: '🛎️', color: 0x84cc16, x: -11, z: 28, style: 'welcome', zone: 'Depan / Boulevard' },
-  { id: 'sales', name: 'Sales', emoji: '📈', color: 0x10b981, x: 11, z: 28, style: 'lounge', zone: 'Depan / Boulevard' },
-  { id: 'paid-media', name: 'Paid Media', emoji: '🎯', color: 0xeab308, x: 34, z: 28, style: 'ticker', zone: 'Depan / Boulevard' },
+  // Zone 1: Front Avenue (Near Highway, Z = +28)
+  { id: 'marketing', name: 'Marketing', emoji: '📢', color: 0xf97316, x: -34, z: 28, style: 'billboard', zone: 'Front Avenue' },
+  { id: 'support', name: 'Support', emoji: '🛎️', color: 0x84cc16, x: -11, z: 28, style: 'welcome', zone: 'Front Avenue' },
+  { id: 'sales', name: 'Sales', emoji: '📈', color: 0x10b981, x: 11, z: 28, style: 'lounge', zone: 'Front Avenue' },
+  { id: 'paid-media', name: 'Paid Media', emoji: '🎯', color: 0xeab308, x: 34, z: 28, style: 'ticker', zone: 'Front Avenue' },
 
-  // Zone 2: Tech & Defense Quad (Z = 10)
-  { id: 'engineering', name: 'Engineering', emoji: '💻', color: 0x3b82f6, x: -34, z: 10, style: 'cyber_tower', zone: 'Tech Quad' },
+  // Zone 2: Tech & Defense Quad (Z = +10)
+  { id: 'engineering', name: 'Engineering', emoji: '💻', color: 0x3b82f6, x: -38, z: 10, style: 'cyber_tower', zone: 'Tech Quad' },
   { id: 'security', name: 'Security', emoji: '🛡️', color: 0xef4444, x: -11, z: 10, style: 'hex_fortress', zone: 'Tech Quad' },
   { id: 'testing', name: 'Testing', emoji: '🧪', color: 0xf59e0b, x: 11, z: 10, style: 'stress_lab', zone: 'Tech Quad' },
   { id: 'gis', name: 'GIS', emoji: '🗺️', color: 0x14b8a6, x: 34, z: 10, style: 'observatory', zone: 'Tech Quad' },
@@ -182,14 +174,68 @@ const divisionalBuildings = [
   { id: 'game-development', name: 'Game Dev', emoji: '🎮', color: 0xa855f7, x: 11, z: -10, style: 'arcade', zone: 'Creative Plaza' },
   { id: 'finance', name: 'Finance', emoji: '💵', color: 0x22c55e, x: 34, z: -10, style: 'emerald_tower', zone: 'Creative Plaza' },
 
-  // Zone 4: Beachfront Promenade (Z = -30, facing ocean)
-  { id: 'academic', name: 'Academic', emoji: '🎓', color: 0x8b5cf6, x: -36, z: -30, style: 'rotunda', zone: 'Tepi Pantai' },
-  { id: 'research', name: 'Research', emoji: '🔬', color: 0x7c3aed, x: -22, z: -30, style: 'quantum_lab', zone: 'Tepi Pantai' },
-  { id: 'spatial-computing', name: 'Spatial XR', emoji: '🥽', color: 0x06b6d4, x: -7, z: -30, style: 'xr_hologram', zone: 'Tepi Pantai' },
-  { id: 'specialized', name: 'Specialized', emoji: '✨', color: 0x6366f1, x: 7, z: -30, style: 'spire', zone: 'Tepi Pantai' },
-  { id: 'healthcare', name: 'Healthcare', emoji: '🩺', color: 0x0d9488, x: 22, z: -30, style: 'biophilic', zone: 'Tepi Pantai' },
-  { id: 'project-management', name: 'Project Mgmt', emoji: '📋', color: 0x0ea5e9, x: 36, z: -30, style: 'grid_tower', zone: 'Tepi Pantai' },
+  // Zone 4: Beachfront Promenade (Oceanfront View, Z = -31)
+  { id: 'academic', name: 'Academic', emoji: '🎓', color: 0x8b5cf6, x: -40, z: -31, style: 'rotunda', zone: 'Tepi Pantai' },
+  { id: 'research', name: 'Research', emoji: '🔬', color: 0x7c3aed, x: -24, z: -31, style: 'quantum_lab', zone: 'Tepi Pantai' },
+  { id: 'spatial-computing', name: 'Spatial XR', emoji: '🥽', color: 0x06b6d4, x: -8, z: -31, style: 'xr_hologram', zone: 'Tepi Pantai' },
+  { id: 'specialized', name: 'Specialized', emoji: '✨', color: 0x6366f1, x: 8, z: -31, style: 'spire', zone: 'Tepi Pantai' },
+  { id: 'healthcare', name: 'Healthcare', emoji: '🩺', color: 0x0d9488, x: 26, z: -31, style: 'biophilic', zone: 'Tepi Pantai' },
+  { id: 'project-management', name: 'Project Mgmt', emoji: '📋', color: 0x0ea5e9, x: 42, z: -31, style: 'grid_tower', zone: 'Tepi Pantai' },
 ]
+
+function getDivisionAgentCount(divId) {
+  return charactersData.value.filter((c) => c.division_id === divId).length || 6
+}
+
+/**
+ * Calculates dynamic spatial metrics and scaling factors
+ * proportional to the number of agents in the division (N: 5 to 66)
+ */
+function getDivisionMetrics(agentCount) {
+  const minCount = 5
+  const maxCount = 66
+  const count = Math.max(minCount, agentCount)
+  const t = Math.min(1.0, Math.max(0.0, (count - minCount) / (maxCount - minCount)))
+
+  // Footprint dimensions: terrace width & depth
+  // Small teams (5-6): width ~ 13m, depth ~ 12m
+  // Medium teams (7-13): width ~ 16-18m, depth ~ 15-17m
+  // Large teams (21): width ~ 23m, depth ~ 20m
+  // Mega teams (59-66): width ~ 31-34m, depth ~ 28-30m
+  const terraceWidth = 13.0 + Math.pow(t, 0.7) * 21.0
+  const terraceDepth = 12.0 + Math.pow(t, 0.7) * 18.0
+
+  // Architecture horizontal scale (scaleXZ) and vertical height scale (scaleY)
+  // Height scales up to 2.8x (Engineering & Specialized reach ~32-36m tall landmarks)
+  const scaleXZ = 0.82 + Math.pow(t, 0.7) * 1.25
+  const scaleY = 0.8 + Math.pow(t, 0.65) * 1.95
+
+  let cols
+  if (count <= 6) {
+    cols = 3
+  } else if (count <= 12) {
+    cols = 4
+  } else if (count <= 24) {
+    cols = 6
+  } else if (count <= 45) {
+    cols = 7
+  } else {
+    cols = 9 // 59 and 66 agents form a rich 9-column tech floor
+  }
+
+  const rows = Math.ceil(count / cols)
+
+  return {
+    count,
+    scaleXZ,
+    scaleY,
+    terraceWidth,
+    terraceDepth,
+    cols,
+    rows,
+    buildingHeight: 11 * scaleY,
+  }
+}
 
 const filteredAgents = computed(() => {
   const q = searchQuery.value.toLowerCase().trim()
@@ -237,12 +283,12 @@ function initThree() {
   // 1. Scene & Atmosphere (Coastal Sunny Day with Horizon)
   scene = new THREE.Scene()
   scene.background = new THREE.Color(0x0f1d33)
-  scene.fog = new THREE.FogExp2(0x0f1d33, 0.005)
+  scene.fog = new THREE.FogExp2(0x0f1d33, 0.004)
 
   // 2. Perspective Camera
   const aspect = container.clientWidth / container.clientHeight
   camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 2000)
-  camera.position.set(0, 75, 95)
+  camera.position.set(0, 85, 105)
   camera.lookAt(0, 0, 5)
 
   // 3. WebGL Renderer
@@ -252,156 +298,135 @@ function initThree() {
   renderer.shadowMap.enabled = true
   renderer.shadowMap.type = THREE.PCFSoftShadowMap
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 1.35
+  renderer.toneMappingExposure = 1.15
   container.appendChild(renderer.domElement)
 
-  // 4. Natural Lighting (Sunlight & Sky bounce)
-  const ambientLight = new THREE.AmbientLight(0xffffff, 1.1)
+  // 4. Lighting Rig (Warm Tropical Sun + Ocean Ambient)
+  const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.95)
   scene.add(ambientLight)
 
-  const sunLight = new THREE.DirectionalLight(0xffedd5, 2.6)
-  sunLight.position.set(60, 90, 60)
+  const sunLight = new THREE.DirectionalLight(0xffedd5, 1.6)
+  sunLight.position.set(60, 95, 45)
   sunLight.castShadow = true
   sunLight.shadow.mapSize.width = 2048
   sunLight.shadow.mapSize.height = 2048
+  sunLight.shadow.camera.near = 10
+  sunLight.shadow.camera.far = 400
   sunLight.shadow.camera.left = -120
   sunLight.shadow.camera.right = 120
   sunLight.shadow.camera.top = 120
   sunLight.shadow.camera.bottom = -120
+  sunLight.shadow.bias = -0.0005
   scene.add(sunLight)
 
-  // Accent lights for ocean and tech quad
-  const oceanRimLight = new THREE.DirectionalLight(0x38bdf8, 1.2)
-  oceanRimLight.position.set(-50, 40, -100)
-  scene.add(oceanRimLight)
+  // Subtle Ocean Blue Fill Light from the rear (Z < 0)
+  const oceanFill = new THREE.DirectionalLight(0x38bdf8, 0.7)
+  oceanFill.position.set(-40, 50, -80)
+  scene.add(oceanFill)
 
-  // 5. Build Environment Components
-  buildGroundAndLandscape()
+  // 5. Build Environment Layers
   buildOceanAndBeach()
-  buildCoconutPlantations()
+  buildPalmPlantations()
   buildHighwayAndTraffic()
+
+  // 6. Build the 18 Divisional Standalone Buildings (Dynamically Scaled)
   buildDivisionalBuildings()
+
+  // 7. Spawn Agent Workstations & 3D Characters (Proportionally Placed)
   spawnAgentWorkstations()
 
-  // 6. Events
-  window.addEventListener('resize', onWindowResize)
+  // 8. Event Listeners
   container.addEventListener('mousemove', onMouseMove)
   container.addEventListener('click', onClick)
+  window.addEventListener('resize', onWindowResize)
 
-  // 7. Start Render Loop
+  // 9. Start Smooth 60FPS Animation Loop
   animate()
 }
 
 // -------------------------------------------------------------
-// ENVIRONMENT: Ground & Campus Boulevard
-// -------------------------------------------------------------
-function buildGroundAndLandscape() {
-  // Main Campus Paved Plinth
-  const groundGeo = new THREE.PlaneGeometry(100, 90)
-  const groundMat = new THREE.MeshStandardMaterial({
-    color: 0x1e293b,
-    roughness: 0.8,
-    metalness: 0.1,
-  })
-  const ground = new THREE.Mesh(groundGeo, groundMat)
-  ground.rotation.x = -Math.PI / 2
-  ground.position.set(0, -0.05, 0)
-  ground.receiveShadow = true
-  scene.add(ground)
-
-  // Elegant Grid Paving Walkways
-  const grid = new THREE.GridHelper(96, 48, 0x0284c7, 0x334155)
-  grid.position.set(0, 0.01, 0)
-  scene.add(grid)
-
-  // Central Holographic Fountain Plaza at (0, 0)
-  const fountainBaseGeo = new THREE.CylinderGeometry(5, 5.5, 0.5, 32)
-  const fountainMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.2, metalness: 0.8 })
-  const fountainBase = new THREE.Mesh(fountainBaseGeo, fountainMat)
-  fountainBase.position.set(0, 0.25, 0)
-  scene.add(fountainBase)
-
-  const poolWaterGeo = new THREE.CylinderGeometry(4.6, 4.6, 0.2, 32)
-  const poolWaterMat = new THREE.MeshStandardMaterial({
-    color: 0x06b6d4,
-    emissive: 0x0891b2,
-    emissiveIntensity: 0.5,
-    roughness: 0.1,
-  })
-  const poolWater = new THREE.Mesh(poolWaterGeo, poolWaterMat)
-  poolWater.position.set(0, 0.5, 0)
-  scene.add(poolWater)
-
-  // Floating Holographic Campus Monument Ring
-  const monumentRingGeo = new THREE.TorusGeometry(3.2, 0.15, 16, 64)
-  const monumentRingMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true })
-  const monumentRing = new THREE.Mesh(monumentRingGeo, monumentRingMat)
-  monumentRing.rotation.x = Math.PI / 3
-  monumentRing.position.set(0, 2.5, 0)
-  scene.add(monumentRing)
-}
-
-// -------------------------------------------------------------
-// BELAKANG: Pantai & Lautan Berombak Animasi (Ocean & Beach)
+// BELAKANG: Lautan Samudra & Pantai Pasir (Ocean & Beach)
 // -------------------------------------------------------------
 function buildOceanAndBeach() {
-  // Sandy Beach Shoreline (Z = -45 to -62)
-  const sandGeo = new THREE.PlaneGeometry(280, 24)
-  const sandMat = new THREE.MeshStandardMaterial({
-    color: 0xd4b16a,
-    roughness: 0.95,
-    metalness: 0.0,
-  })
-  const sand = new THREE.Mesh(sandGeo, sandMat)
-  sand.rotation.x = -Math.PI / 2
-  sand.position.set(0, -0.02, -54)
-  sand.receiveShadow = true
-  scene.add(sand)
-
-  // Animated Ocean Water Surface (Z = -60 to -320)
-  const oceanGeo = new THREE.PlaneGeometry(360, 260, 64, 48)
+  // Deep Blue Ocean Plane (Z = -60 to -240)
+  const oceanGeo = new THREE.PlaneGeometry(380, 180, 64, 48)
   const oceanMat = new THREE.MeshPhysicalMaterial({
     color: 0x0284c7,
-    emissive: 0x0369a1,
-    emissiveIntensity: 0.2,
-    roughness: 0.15,
+    roughness: 0.1,
+    metalness: 0.2,
     transmission: 0.6,
-    thickness: 1.2,
     transparent: true,
     opacity: 0.88,
   })
   oceanMesh = new THREE.Mesh(oceanGeo, oceanMat)
   oceanMesh.rotation.x = -Math.PI / 2
-  oceanMesh.position.set(0, -0.15, -180)
+  oceanMesh.position.set(0, -0.6, -145)
   scene.add(oceanMesh)
 
-  // Beach Umbrellas & Sun Loungers along the shore
-  const umbrellaGeo = new THREE.ConeGeometry(1.6, 0.8, 16)
-  ;[-38, -20, 0, 20, 38].forEach((ux) => {
-    const umbMat = new THREE.MeshStandardMaterial({ color: ux % 2 === 0 ? 0xef4444 : 0x38bdf8, roughness: 0.4 })
-    const umb = new THREE.Mesh(umbrellaGeo, umbMat)
-    umb.position.set(ux, 2.2, -49)
-    umb.castShadow = true
-    scene.add(umb)
+  // Golden Sand Beach Strip (Z = -46 to -60)
+  const beachGeo = new THREE.PlaneGeometry(360, 20)
+  const beachMat = new THREE.MeshStandardMaterial({
+    color: 0xfef08a,
+    roughness: 0.95,
+    metalness: 0.05,
+  })
+  const beach = new THREE.Mesh(beachGeo, beachMat)
+  beach.rotation.x = -Math.PI / 2
+  beach.position.set(0, -0.2, -54)
+  beach.receiveShadow = true
+  scene.add(beach)
 
+  // Beach Loungers & Parasol Umbrellas along the shore
+  for (let x = -70; x <= 70; x += 18) {
+    // Parasol
     const pole = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.05, 0.05, 2.2, 8),
+      new THREE.CylinderGeometry(0.06, 0.06, 2.8, 8),
       new THREE.MeshStandardMaterial({ color: 0xffffff })
     )
-    pole.position.set(ux, 1.1, -49)
+    pole.position.set(x, 1.4, -53)
+    pole.castShadow = true
     scene.add(pole)
+
+    const canopy = new THREE.Mesh(
+      new THREE.ConeGeometry(1.6, 0.7, 12),
+      new THREE.MeshStandardMaterial({ color: (x % 36 === 0) ? 0xef4444 : 0x38bdf8 })
+    )
+    canopy.position.set(x, 2.7, -53)
+    canopy.castShadow = true
+    scene.add(canopy)
+
+    // Lounger Bed
+    const bed = new THREE.Mesh(
+      new THREE.BoxGeometry(0.8, 0.15, 1.8),
+      new THREE.MeshStandardMaterial({ color: 0xffffff })
+    )
+    bed.position.set(x + 0.8, 0.1, -52.2)
+    bed.castShadow = true
+    scene.add(bed)
+  }
+
+  // Campus Ground Plaza Base (Z = -46 to +58)
+  const plazaGeo = new THREE.PlaneGeometry(360, 104)
+  const plazaMat = new THREE.MeshStandardMaterial({
+    color: 0x090d16,
+    roughness: 0.85,
+    metalness: 0.15,
   })
+  const plaza = new THREE.Mesh(plazaGeo, plazaMat)
+  plaza.rotation.x = -Math.PI / 2
+  plaza.position.set(0, 0, 6)
+  plaza.receiveShadow = true
+  scene.add(plaza)
 }
 
 // -------------------------------------------------------------
-// KIRI & KANAN: Perkebunan Pohon Kelapa Tropis (Palm Plantations)
+// KIRI & KANAN: Perkebunan Pohon Kelapa (Palm Tree Plantations)
 // -------------------------------------------------------------
-function buildCoconutPlantations() {
+function buildPalmPlantations() {
   const createPalmTree = (px, pz) => {
     const palmGroup = new THREE.Group()
     palmGroup.position.set(px, 0, pz)
 
-    // Curved Trunk with 4 segmented rings
     const trunkHeight = 7.5 + Math.random() * 2
     const trunkMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.85 })
     const trunkGeo = new THREE.CylinderGeometry(0.2, 0.38, trunkHeight, 10)
@@ -412,7 +437,6 @@ function buildCoconutPlantations() {
     trunk.castShadow = true
     palmGroup.add(trunk)
 
-    // Crown of Palm Fronds (8 curved green blades)
     const crownGroup = new THREE.Group()
     crownGroup.position.set(0, trunkHeight, 0)
 
@@ -429,7 +453,6 @@ function buildCoconutPlantations() {
       crownGroup.add(frond)
     }
 
-    // Coconuts cluster
     const coconutGeo = new THREE.SphereGeometry(0.2, 8, 8)
     const coconutMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.9 })
     ;[[-0.3, -0.2, 0.2], [0.3, -0.2, -0.2], [0.1, -0.25, 0.3]].forEach(([cx, cy, cz]) => {
@@ -443,15 +466,15 @@ function buildCoconutPlantations() {
     scene.add(palmGroup)
   }
 
-  // Left Plantation (X: -55 to -105, Z: -42 to 45)
-  for (let x = -55; x >= -105; x -= 10) {
+  // Left Plantation (X: -65 to -115, Z: -42 to 45)
+  for (let x = -65; x >= -115; x -= 10) {
     for (let z = -42; z <= 45; z += 11) {
       createPalmTree(x + (Math.random() * 4 - 2), z + (Math.random() * 4 - 2))
     }
   }
 
-  // Right Plantation (X: +55 to +105, Z: -42 to 45)
-  for (let x = 55; x <= 105; x += 10) {
+  // Right Plantation (X: +65 to +115, Z: -42 to 45)
+  for (let x = 65; x <= 115; x += 10) {
     for (let z = -42; z <= 45; z += 11) {
       createPalmTree(x + (Math.random() * 4 - 2), z + (Math.random() * 4 - 2))
     }
@@ -462,7 +485,6 @@ function buildCoconutPlantations() {
 // DEPAN: Jalan Raya & Lalu Lintas Bergerak (Highway & Traffic)
 // -------------------------------------------------------------
 function buildHighwayAndTraffic() {
-  // Asphalt Multi-Lane Highway (Z = 58 to 72)
   const roadGeo = new THREE.PlaneGeometry(360, 16)
   const roadMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 })
   const road = new THREE.Mesh(roadGeo, roadMat)
@@ -471,7 +493,6 @@ function buildHighwayAndTraffic() {
   road.receiveShadow = true
   scene.add(road)
 
-  // Double Yellow Center Line
   const centerLineGeo = new THREE.PlaneGeometry(360, 0.3)
   const yellowMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 })
   const centerLine = new THREE.Mesh(centerLineGeo, yellowMat)
@@ -479,7 +500,6 @@ function buildHighwayAndTraffic() {
   centerLine.position.set(0, 0.03, 65)
   scene.add(centerLine)
 
-  // Pedestrian Sidewalk Promenade (Z = 50 to 57)
   const sidewalkGeo = new THREE.PlaneGeometry(360, 7)
   const sidewalkMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.85 })
   const sidewalk = new THREE.Mesh(sidewalkGeo, sidewalkMat)
@@ -488,7 +508,6 @@ function buildHighwayAndTraffic() {
   sidewalk.receiveShadow = true
   scene.add(sidewalk)
 
-  // Street Light Poles along the Sidewalk
   for (let x = -100; x <= 100; x += 25) {
     const poleGeo = new THREE.CylinderGeometry(0.08, 0.12, 6.5, 8)
     const poleMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.8 })
@@ -505,10 +524,8 @@ function buildHighwayAndTraffic() {
     scene.add(lampHead)
   }
 
-  // Create Moving Vehicles (Cars, Vans, Buses)
   const vehicleColors = [0xef4444, 0x3b82f6, 0xffffff, 0x10b981, 0xf59e0b, 0x8b5cf6, 0x06b6d4]
 
-  // Lane 1: Heading East (+X) at Z = 62
   for (let i = 0; i < 6; i++) {
     const v = createVehicleMesh(vehicleColors[i % vehicleColors.length])
     v.position.set(-140 + i * 50, 0.4, 62)
@@ -517,7 +534,6 @@ function buildHighwayAndTraffic() {
     movingVehicles.push(v)
   }
 
-  // Lane 2: Heading West (-X) at Z = 68
   for (let i = 0; i < 6; i++) {
     const v = createVehicleMesh(vehicleColors[(i + 3) % vehicleColors.length])
     v.position.set(140 - i * 50, 0.4, 68)
@@ -527,7 +543,6 @@ function buildHighwayAndTraffic() {
     movingVehicles.push(v)
   }
 
-  // Pedestrians strolling on sidewalk (Z = 53.5)
   for (let i = 0; i < 10; i++) {
     const ped = createPedestrianMesh()
     ped.position.set(-80 + i * 18, 0.7, 52.5 + (i % 2) * 1.5)
@@ -540,7 +555,6 @@ function buildHighwayAndTraffic() {
 function createVehicleMesh(colorHex) {
   const vGroup = new THREE.Group()
 
-  // Car Body
   const bodyGeo = new THREE.BoxGeometry(3.6, 0.9, 1.8)
   const bodyMat = new THREE.MeshStandardMaterial({ color: colorHex, metalness: 0.6, roughness: 0.2 })
   const body = new THREE.Mesh(bodyGeo, bodyMat)
@@ -548,14 +562,12 @@ function createVehicleMesh(colorHex) {
   body.castShadow = true
   vGroup.add(body)
 
-  // Cabin / Windows
   const cabinGeo = new THREE.BoxGeometry(2.0, 0.7, 1.6)
   const cabinMat = new THREE.MeshPhysicalMaterial({ color: 0x0f172a, roughness: 0.1, transmission: 0.7 })
   const cabin = new THREE.Mesh(cabinGeo, cabinMat)
   cabin.position.set(-0.2, 1.25, 0)
   vGroup.add(cabin)
 
-  // Headlights (White glow)
   const headlightMat = new THREE.MeshBasicMaterial({ color: 0xffffff })
   ;[-0.6, 0.6].forEach((hz) => {
     const light = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.2, 0.3), headlightMat)
@@ -563,7 +575,6 @@ function createVehicleMesh(colorHex) {
     vGroup.add(light)
   })
 
-  // Taillights (Red glow)
   const taillightMat = new THREE.MeshBasicMaterial({ color: 0xef4444 })
   ;[-0.6, 0.6].forEach((tz) => {
     const light = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.2, 0.3), taillightMat)
@@ -592,46 +603,85 @@ function createPedestrianMesh() {
   return pGroup
 }
 
+/**
+ * Creates a crisp Canvas Texture for the 3D floating signboard
+ * showing the Division Title and Member Headcount Badge
+ */
+function createSignboardTexture(name, count, colorHex) {
+  const canvas = document.createElement('canvas')
+  canvas.width = 512
+  canvas.height = 140
+  const ctx = canvas.getContext('2d')
+
+  // Dark cyber background
+  ctx.fillStyle = '#020617'
+  ctx.fillRect(0, 0, 512, 140)
+
+  // Neon glowing border
+  const hexStr = typeof colorHex === 'string' ? colorHex : '#' + colorHex.toString(16).padStart(6, '0')
+  ctx.strokeStyle = hexStr
+  ctx.lineWidth = 6
+  ctx.strokeRect(4, 4, 504, 132)
+
+  // Division Name
+  ctx.fillStyle = '#ffffff'
+  ctx.font = 'bold 38px "Segoe UI", sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText(name.toUpperCase(), 256, 56)
+
+  // Headcount pill badge
+  ctx.fillStyle = hexStr
+  ctx.font = 'bold 26px monospace'
+  ctx.fillText(`👥 ${count} AGEN AKTIF`, 256, 106)
+
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.needsUpdate = true
+  return texture
+}
+
 // -------------------------------------------------------------
-// KOMPLEKS: 18 Gedung Kantor Divisi Mandiri
+// KOMPLEKS: 18 Gedung Kantor Divisi Mandiri (Ukuran Berbasis Personil)
 // -------------------------------------------------------------
 function buildDivisionalBuildings() {
   divisionalBuildings.forEach((b) => {
+    const agentCount = getDivisionAgentCount(b.id)
+    const metrics = getDivisionMetrics(agentCount)
+
+    b.buildingHeight = metrics.buildingHeight
+
     const bGroup = new THREE.Group()
     bGroup.position.set(b.x, 0, b.z)
 
-    // Base Terrace Platform for the Division
-    const terraceGeo = new THREE.BoxGeometry(16, 0.4, 14)
+    // 1. Proportional Base Terrace Platform (Teras Berdasarkan Jumlah Orang)
+    const terraceGeo = new THREE.BoxGeometry(metrics.terraceWidth, 0.4, metrics.terraceDepth)
     const terraceMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.4 })
     const terrace = new THREE.Mesh(terraceGeo, terraceMat)
     terrace.position.y = 0.2
     terrace.receiveShadow = true
     bGroup.add(terrace)
 
-    // Glowing Division Color Neon Perimeter
-    const neonBorderGeo = new THREE.BoxGeometry(16.2, 0.1, 14.2)
+    // 2. Glowing Neon Perimeter
+    const neonBorderGeo = new THREE.BoxGeometry(metrics.terraceWidth + 0.2, 0.1, metrics.terraceDepth + 0.2)
     const neonBorderMat = new THREE.MeshBasicMaterial({ color: b.color, wireframe: true })
     const neonBorder = new THREE.Mesh(neonBorderGeo, neonBorderMat)
     neonBorder.position.y = 0.42
     bGroup.add(neonBorder)
 
-    // Building Structure customized by Division Style
-    buildCustomArchitecture(bGroup, b)
+    // 3. Custom Architectural Building Scaled Proportional to Team Size
+    buildCustomArchitecture(bGroup, b, metrics)
 
-    // Floating 3D Glowing Signboard over the building
+    // 4. Floating 3D Glowing Signboard with Headcount Badge
     const signGroup = new THREE.Group()
-    signGroup.position.set(0, 11, 0)
+    signGroup.position.set(0, metrics.buildingHeight + 3.2, -metrics.terraceDepth * 0.15)
 
-    const signBoardGeo = new THREE.BoxGeometry(7, 1.4, 0.3)
-    const signBoardMat = new THREE.MeshStandardMaterial({
-      color: 0x020617,
-      roughness: 0.2,
-      metalness: 0.8,
-    })
+    const signBoardWidth = Math.max(7.5, metrics.scaleXZ * 6.5)
+    const signBoardGeo = new THREE.BoxGeometry(signBoardWidth, 1.8, 0.3)
+    const signTexture = createSignboardTexture(b.name, agentCount, b.color)
+    const signBoardMat = new THREE.MeshBasicMaterial({ map: signTexture })
     const signBoard = new THREE.Mesh(signBoardGeo, signBoardMat)
     signGroup.add(signBoard)
 
-    const signGlowGeo = new THREE.BoxGeometry(7.2, 1.6, 0.1)
+    const signGlowGeo = new THREE.BoxGeometry(signBoardWidth + 0.25, 2.05, 0.1)
     const signGlowMat = new THREE.MeshBasicMaterial({
       color: b.color,
       wireframe: true,
@@ -641,12 +691,12 @@ function buildDivisionalBuildings() {
 
     bGroup.add(signGroup)
 
-    // Interactive Click Box for the Building
+    // 5. Interactive Click Box for the Building
     const hitBox = new THREE.Mesh(
-      new THREE.BoxGeometry(18, 16, 16),
+      new THREE.BoxGeometry(metrics.terraceWidth, metrics.buildingHeight + 4, metrics.terraceDepth),
       new THREE.MeshBasicMaterial({ visible: false })
     )
-    hitBox.position.y = 8
+    hitBox.position.y = (metrics.buildingHeight + 4) / 2
     hitBox.userData = { building: b, group: bGroup }
     bGroup.add(hitBox)
 
@@ -655,7 +705,12 @@ function buildDivisionalBuildings() {
   })
 }
 
-function buildCustomArchitecture(group, b) {
+/**
+ * Builds distinct architectural structures scaled by the division's headcount
+ */
+function buildCustomArchitecture(group, b, metrics) {
+  const { scaleXZ, scaleY, terraceDepth } = metrics
+
   const mainMat = new THREE.MeshStandardMaterial({
     color: 0x1e293b,
     roughness: 0.3,
@@ -665,7 +720,7 @@ function buildCustomArchitecture(group, b) {
   const glassMat = new THREE.MeshPhysicalMaterial({
     color: b.color,
     transparent: true,
-    opacity: 0.4,
+    opacity: 0.45,
     roughness: 0.1,
     transmission: 0.8,
   })
@@ -673,110 +728,224 @@ function buildCustomArchitecture(group, b) {
   const accentMat = new THREE.MeshStandardMaterial({
     color: b.color,
     emissive: b.color,
-    emissiveIntensity: 0.5,
+    emissiveIntensity: 0.55,
   })
 
+  const rearZ = -terraceDepth * 0.22
+
   switch (b.style) {
-    case 'cyber_tower': { // Engineering: Cyber Tower with Server Neon Racks
-      const tower = new THREE.Mesh(new THREE.BoxGeometry(9, 13, 8), mainMat)
-      tower.position.set(0, 6.7, -1)
+    case 'cyber_tower': {
+      // Engineering (66 Agents): Colossal Flagship Cyber Tower with Dual Server Wings
+      const towerH = 14 * scaleY
+      const towerW = 9.5 * scaleXZ
+      const towerD = 8 * scaleXZ
+
+      // Central Cyber Tower
+      const tower = new THREE.Mesh(new THREE.BoxGeometry(towerW, towerH, towerD), mainMat)
+      tower.position.set(0, towerH / 2 + 0.4, rearZ)
       tower.castShadow = true
       group.add(tower)
 
-      const glassFront = new THREE.Mesh(new THREE.BoxGeometry(8, 11, 0.2), glassMat)
-      glassFront.position.set(0, 6.7, 3.1)
+      // Glass Curtain Wall
+      const glassFront = new THREE.Mesh(new THREE.BoxGeometry(towerW * 0.88, towerH * 0.85, 0.2), glassMat)
+      glassFront.position.set(0, towerH / 2 + 0.4, rearZ + towerD / 2 + 0.1)
       group.add(glassFront)
 
-      // Server vertical neon strips
-      ;[-3.5, 3.5].forEach((sx) => {
-        const strip = new THREE.Mesh(new THREE.BoxGeometry(0.4, 12, 0.4), accentMat)
-        strip.position.set(sx, 6.7, 3.1)
+      // Dual High-Tech Side Wings (for huge 66-person engineering corps)
+      ;[-towerW * 0.75, towerW * 0.75].forEach((wx) => {
+        const wing = new THREE.Mesh(new THREE.BoxGeometry(towerW * 0.55, towerH * 0.65, towerD * 0.8), mainMat)
+        wing.position.set(wx, (towerH * 0.65) / 2 + 0.4, rearZ)
+        wing.castShadow = true
+        group.add(wing)
+
+        const wingNeon = new THREE.Mesh(new THREE.BoxGeometry(0.3, towerH * 0.65, 0.3), accentMat)
+        wingNeon.position.set(wx, (towerH * 0.65) / 2 + 0.4, rearZ + (towerD * 0.8) / 2 + 0.1)
+        group.add(wingNeon)
+      })
+
+      // Vertical Server Neon Racks
+      ;[-towerW * 0.4, towerW * 0.4].forEach((sx) => {
+        const strip = new THREE.Mesh(new THREE.BoxGeometry(0.4, towerH * 0.9, 0.4), accentMat)
+        strip.position.set(sx, towerH / 2 + 0.4, rearZ + towerD / 2 + 0.15)
         group.add(strip)
+      })
+
+      // High-Frequency Communication Mast & Rooftop Dishes
+      const mastH = 6 * scaleY
+      const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.3, mastH, 8), accentMat)
+      mast.position.set(0, towerH + mastH / 2 + 0.4, rearZ)
+      group.add(mast)
+      break
+    }
+
+    case 'spire': {
+      // Specialized (59 Agents): Grand Multi-Tier Crystal Innovation Spire with Orbital Rings
+      const spireH = 15 * scaleY
+      const baseR = 5.5 * scaleXZ
+
+      // Octagonal Base Tower
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(baseR * 0.8, baseR, spireH * 0.65, 8), mainMat)
+      base.position.set(0, (spireH * 0.65) / 2 + 0.4, rearZ)
+      base.castShadow = true
+      group.add(base)
+
+      // Upper Crystal Spire
+      const crystal = new THREE.Mesh(new THREE.ConeGeometry(baseR * 0.75, spireH * 0.5, 8), glassMat)
+      crystal.position.set(0, spireH * 0.65 + (spireH * 0.5) / 2 + 0.4, rearZ)
+      group.add(crystal)
+
+      // Floating Orbital Rings
+      ;[spireH * 0.5, spireH * 0.85].forEach((ry, idx) => {
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(baseR * (idx === 0 ? 1.25 : 0.85), 0.2, 8, 32), accentMat)
+        ring.rotation.x = Math.PI / 2 + 0.15 * (idx === 0 ? 1 : -1)
+        ring.position.set(0, ry, rearZ)
+        group.add(ring)
       })
       break
     }
 
-    case 'hex_fortress': { // Security: Hexagonal Armored Fortress
-      const fort = new THREE.Mesh(new THREE.CylinderGeometry(5.5, 6.5, 10, 6), mainMat)
-      fort.position.set(0, 5.2, -1)
-      fort.castShadow = true
-      group.add(fort)
+    case 'arcade': {
+      // Game Development (21 Agents): Interactive Game Studio with Neon Laser Edges
+      const w = 12 * scaleXZ
+      const h = 9.5 * scaleY
+      const d = 8 * scaleXZ
 
-      const shieldRing = new THREE.Mesh(new THREE.TorusGeometry(6.8, 0.2, 8, 6), accentMat)
-      shieldRing.rotation.x = Math.PI / 2
-      shieldRing.position.set(0, 5, -1)
-      group.add(shieldRing)
-      break
-    }
-
-    case 'curved_glass': { // Design: Avant-Garde Curved Glass Studio
-      const studio = new THREE.Mesh(new THREE.CylinderGeometry(5, 5.8, 9, 32, 1, false, 0, Math.PI), glassMat)
-      studio.position.set(0, 4.7, 1)
+      const studio = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mainMat)
+      studio.position.set(0, h / 2 + 0.4, rearZ)
+      studio.castShadow = true
       group.add(studio)
 
-      const roof = new THREE.Mesh(new THREE.CylinderGeometry(6, 6, 0.6, 32), mainMat)
-      roof.position.set(0, 9.4, 1)
-      group.add(roof)
+      const screenGlass = new THREE.Mesh(new THREE.BoxGeometry(w * 0.85, h * 0.75, 0.2), glassMat)
+      screenGlass.position.set(0, h / 2 + 0.4, rearZ + d / 2 + 0.1)
+      group.add(screenGlass)
+
+      // Neon Laser Roof Bevel
+      const neonRoof = new THREE.Mesh(new THREE.BoxGeometry(w * 1.05, 0.6, d * 1.05), accentMat)
+      neonRoof.position.set(0, h + 0.4, rearZ)
+      group.add(neonRoof)
       break
     }
 
-    case 'rotunda': { // Academic: Neoclassical Modern Rotunda Library
-      const dome = new THREE.Mesh(new THREE.SphereGeometry(4.5, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2), mainMat)
-      dome.position.set(0, 7.5, -1)
+    case 'observatory': {
+      // GIS (13 Agents): Satellite Tracking Observatory & Geospatial Dome
+      const baseR = 5 * scaleXZ
+      const baseH = 6 * scaleY
+
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(baseR, baseR * 1.05, baseH, 24), mainMat)
+      base.position.set(0, baseH / 2 + 0.4, rearZ)
+      base.castShadow = true
+      group.add(base)
+
+      // Hemispherical Celestial Dome
+      const domeR = baseR * 0.85
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(domeR, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2), glassMat)
+      dome.position.set(0, baseH + 0.4, rearZ)
+      group.add(dome)
+
+      // Dual Angled Satellite Dishes
+      ;[-baseR * 0.75, baseR * 0.75].forEach((dx, idx) => {
+        const dish = new THREE.Mesh(new THREE.ConeGeometry(1.6 * scaleXZ, 0.5, 16), accentMat)
+        dish.rotation.x = -Math.PI / 3.2
+        dish.rotation.y = idx === 0 ? 0.4 : -0.4
+        dish.position.set(dx, baseH + 2.5 * scaleY, rearZ)
+        group.add(dish)
+      })
+      break
+    }
+
+    case 'curved_glass': {
+      // Design (10 Agents): Avant-Garde Curved Glass Studio
+      const r = 5.2 * scaleXZ
+      const h = 8.5 * scaleY
+
+      const studio = new THREE.Mesh(new THREE.CylinderGeometry(r, r * 1.1, h, 32, 1, false, 0, Math.PI), glassMat)
+      studio.position.set(0, h / 2 + 0.4, rearZ + 1)
+      group.add(studio)
+
+      const roof = new THREE.Mesh(new THREE.CylinderGeometry(r * 1.15, r * 1.15, 0.6, 32), mainMat)
+      roof.position.set(0, h + 0.4, rearZ + 1)
+      group.add(roof)
+
+      const accentArch = new THREE.Mesh(new THREE.TorusGeometry(r * 1.1, 0.25, 8, 32, Math.PI), accentMat)
+      accentArch.rotation.x = Math.PI / 2
+      accentArch.position.set(0, h + 0.7, rearZ + 1)
+      group.add(accentArch)
+      break
+    }
+
+    case 'rotunda': {
+      // Academic (7 Agents): Neoclassical Modern Rotunda Library
+      const r = 4.2 * scaleXZ
+      const h = 7.5 * scaleY
+
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2), mainMat)
+      dome.position.set(0, h + 0.4, rearZ)
       group.add(dome)
 
       // Colonnade Pillars
       for (let i = 0; i < 8; i++) {
         const ang = (i / 8) * Math.PI * 2
-        const p = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 7.5, 12), accentMat)
-        p.position.set(Math.sin(ang) * 4.2, 3.95, Math.cos(ang) * 4.2 - 1)
+        const p = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, h, 12), accentMat)
+        p.position.set(Math.sin(ang) * (r * 0.95), h / 2 + 0.4, rearZ + Math.cos(ang) * (r * 0.95))
         group.add(p)
       }
       break
     }
 
-    case 'observatory': { // GIS: Satellite Dome Observatory
-      const base = new THREE.Mesh(new THREE.CylinderGeometry(5, 5, 6, 24), mainMat)
-      base.position.set(0, 3.2, -1)
-      group.add(base)
+    case 'emerald_tower': {
+      // Finance (5 Agents): Compact Sleek Emerald Glass Skyscraper
+      const w = 6.5 * scaleXZ
+      const h = 11.5 * scaleY
+      const d = 5.8 * scaleXZ
 
-      const dome = new THREE.Mesh(new THREE.SphereGeometry(3.5, 20, 16), glassMat)
-      dome.position.set(0, 7.5, -1)
-      group.add(dome)
-
-      // Satellite dish antenna
-      const dish = new THREE.Mesh(new THREE.ConeGeometry(1.8, 0.6, 16), accentMat)
-      dish.rotation.x = -Math.PI / 3
-      dish.position.set(2, 9.5, -1)
-      group.add(dish)
-      break
-    }
-
-    case 'emerald_tower': { // Finance: Sleek Emerald Glass Skyscraper
-      const finTower = new THREE.Mesh(new THREE.BoxGeometry(8, 14, 7), glassMat)
-      finTower.position.set(0, 7.2, -1)
+      const finTower = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), glassMat)
+      finTower.position.set(0, h / 2 + 0.4, rearZ)
       finTower.castShadow = true
       group.add(finTower)
 
-      // Gold Accent Pillars
-      const goldPillar = new THREE.Mesh(new THREE.BoxGeometry(0.5, 14.5, 7.2), accentMat)
-      goldPillar.position.set(0, 7.2, -1)
-      group.add(goldPillar)
+      // Gold Accent Vertical Columns
+      ;[-w / 2, w / 2].forEach((gx) => {
+        const goldCol = new THREE.Mesh(new THREE.BoxGeometry(0.4, h * 1.05, 0.4), accentMat)
+        goldCol.position.set(gx, h / 2 + 0.4, rearZ + d / 2)
+        group.add(goldCol)
+      })
       break
     }
 
-    default: { // Standard Sleek Pavilion for other divisions
-      const core = new THREE.Mesh(new THREE.BoxGeometry(8.5, 8.5, 7.5), mainMat)
-      core.position.set(0, 4.45, -1)
+    case 'hex_fortress': {
+      // Security (6 Agents): Armored Hexagonal Defense Bunker
+      const r = 4.8 * scaleXZ
+      const h = 8.5 * scaleY
+
+      const fort = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.85, r, h, 6), mainMat)
+      fort.position.set(0, h / 2 + 0.4, rearZ)
+      fort.castShadow = true
+      group.add(fort)
+
+      const shieldRing = new THREE.Mesh(new THREE.TorusGeometry(r * 1.15, 0.2, 8, 6), accentMat)
+      shieldRing.rotation.x = Math.PI / 2
+      shieldRing.position.set(0, h * 0.6, rearZ)
+      group.add(shieldRing)
+      break
+    }
+
+    default: {
+      // Standard Adaptive Pavilion scaled proportionally to headcount
+      const w = 7.5 * scaleXZ
+      const h = 8.0 * scaleY
+      const d = 6.5 * scaleXZ
+
+      const core = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mainMat)
+      core.position.set(0, h / 2 + 0.4, rearZ)
       core.castShadow = true
       group.add(core)
 
-      const glassFacade = new THREE.Mesh(new THREE.BoxGeometry(7.8, 7.5, 0.2), glassMat)
-      glassFacade.position.set(0, 4.2, 2.8)
+      const glassFacade = new THREE.Mesh(new THREE.BoxGeometry(w * 0.9, h * 0.85, 0.2), glassMat)
+      glassFacade.position.set(0, h / 2 + 0.4, rearZ + d / 2 + 0.1)
       group.add(glassFacade)
 
-      const roofBevel = new THREE.Mesh(new THREE.BoxGeometry(9.2, 0.6, 8.2), accentMat)
-      roofBevel.position.set(0, 8.8, -1)
+      const roofBevel = new THREE.Mesh(new THREE.BoxGeometry(w * 1.08, 0.5, d * 1.08), accentMat)
+      roofBevel.position.set(0, h + 0.4, rearZ)
       group.add(roofBevel)
       break
     }
@@ -787,88 +956,123 @@ function buildCustomArchitecture(group, b) {
 // WORKSTATIONS & 3D AGENTS: Spawned at Building Terraces
 // -------------------------------------------------------------
 function spawnAgentWorkstations() {
+  // Group characters by division to calculate dynamic, proportional spatial layout
+  const agentsByDivision = {}
   charactersData.value.forEach((char) => {
-    const group = new THREE.Group()
-    group.position.set(char.position_x, char.position_y, char.position_z)
+    if (!agentsByDivision[char.division_id]) {
+      agentsByDivision[char.division_id] = []
+    }
+    agentsByDivision[char.division_id].push(char)
+  })
 
-    const agentColor = char.agent_color || '#3B82F6'
+  // Spawn workstations for each division
+  Object.keys(agentsByDivision).forEach((divId) => {
+    const divAgents = agentsByDivision[divId]
+    const building = divisionalBuildings.find((b) => b.id === divId) || { x: 0, z: 0, color: 0x3b82f6 }
+    const metrics = getDivisionMetrics(divAgents.length)
 
-    // Desk
-    const deskGeo = new THREE.BoxGeometry(2.4, 0.1, 1.4)
-    const deskMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.35 })
-    const desk = new THREE.Mesh(deskGeo, deskMat)
-    desk.position.y = 0.8
-    desk.castShadow = true
-    desk.receiveShadow = true
-    group.add(desk)
+    const cols = metrics.cols
+    const rows = metrics.rows
 
-    // Legs
-    const legGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.8, 8)
-    const legMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.9 })
-    ;[[-1.1, -0.6], [1.1, -0.6], [-1.1, 0.6], [1.1, 0.6]].forEach(([lx, lz]) => {
-      const leg = new THREE.Mesh(legGeo, legMat)
-      leg.position.set(lx, 0.4, lz)
-      group.add(leg)
+    const spacingX = (metrics.terraceWidth * 0.82) / cols
+    const spacingZ = Math.min(2.4, (metrics.terraceDepth * 0.55) / Math.max(1, rows))
+
+    divAgents.forEach((char, idx) => {
+      const col = idx % cols
+      const row = Math.floor(idx / cols)
+
+      // Place desk proportionally on the elevated terrace
+      const deskX = building.x + (col - (cols - 1) / 2) * spacingX
+      const deskZ = building.z + (metrics.terraceDepth * 0.12) + (row - (rows - 1) / 2) * spacingZ
+      const deskY = 0.42
+
+      // Synchronize character data position for search and camera targeting
+      char.position_x = deskX
+      char.position_y = deskY
+      char.position_z = deskZ
+
+      const group = new THREE.Group()
+      group.position.set(deskX, deskY, deskZ)
+
+      const agentColor = char.agent_color || '#3B82F6'
+
+      // Desk Surface
+      const deskGeo = new THREE.BoxGeometry(2.0, 0.08, 1.2)
+      const deskMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.35 })
+      const desk = new THREE.Mesh(deskGeo, deskMat)
+      desk.position.y = 0.75
+      desk.castShadow = true
+      desk.receiveShadow = true
+      group.add(desk)
+
+      // Legs
+      const legGeo = new THREE.CylinderGeometry(0.035, 0.035, 0.75, 8)
+      const legMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.9 })
+      ;[[-0.9, -0.5], [0.9, -0.5], [-0.9, 0.5], [0.9, 0.5]].forEach(([lx, lz]) => {
+        const leg = new THREE.Mesh(legGeo, legMat)
+        leg.position.set(lx, 0.375, lz)
+        group.add(leg)
+      })
+
+      // Glowing Curved Monitor
+      const screenGeo = new THREE.BoxGeometry(1.0, 0.6, 0.04)
+      const screenMat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(agentColor),
+        emissive: new THREE.Color(agentColor),
+        emissiveIntensity: 0.7,
+      })
+      const screen = new THREE.Mesh(screenGeo, screenMat)
+      screen.position.set(0, 1.15, -0.25)
+      group.add(screen)
+
+      // 3D Stylized Agent Avatar (Torso Capsule + Head Sphere)
+      const avatarGroup = new THREE.Group()
+      avatarGroup.position.set(0, 0.8, 0.35)
+
+      const bodyGeo = new THREE.CylinderGeometry(0.26, 0.3, 0.7, 16)
+      const bodyMat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(agentColor),
+        roughness: 0.4,
+      })
+      const body = new THREE.Mesh(bodyGeo, bodyMat)
+      body.position.y = 0.35
+      body.castShadow = true
+      avatarGroup.add(body)
+
+      const headGeo = new THREE.SphereGeometry(0.24, 20, 20)
+      const headMat = new THREE.MeshStandardMaterial({ color: 0xfde047, roughness: 0.3 })
+      const head = new THREE.Mesh(headGeo, headMat)
+      head.position.y = 0.92
+      head.castShadow = true
+      avatarGroup.add(head)
+
+      // Floating Holographic Indicator Ring
+      const ringGeo = new THREE.RingGeometry(0.42, 0.55, 32)
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(agentColor),
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.8,
+      })
+      const ring = new THREE.Mesh(ringGeo, ringMat)
+      ring.rotation.x = -Math.PI / 2
+      ring.position.y = 0.04
+      avatarGroup.add(ring)
+
+      group.add(avatarGroup)
+
+      // Raycast Bounding Box for Agent
+      const hitBox = new THREE.Mesh(
+        new THREE.BoxGeometry(2.4, 2.2, 2.2),
+        new THREE.MeshBasicMaterial({ visible: false })
+      )
+      hitBox.position.y = 1.1
+      hitBox.userData = { character: char, ring, group }
+      group.add(hitBox)
+
+      agentMeshes.push(hitBox)
+      scene.add(group)
     })
-
-    // Glowing Curved Monitor
-    const screenGeo = new THREE.BoxGeometry(1.2, 0.7, 0.05)
-    const screenMat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(agentColor),
-      emissive: new THREE.Color(agentColor),
-      emissiveIntensity: 0.7,
-    })
-    const screen = new THREE.Mesh(screenGeo, screenMat)
-    screen.position.set(0, 1.25, -0.3)
-    group.add(screen)
-
-    // 3D Stylized Agent Avatar (Torso Capsule + Head Sphere)
-    const avatarGroup = new THREE.Group()
-    avatarGroup.position.set(0, 0.85, 0.4)
-
-    const bodyGeo = new THREE.CylinderGeometry(0.3, 0.35, 0.8, 16)
-    const bodyMat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(agentColor),
-      roughness: 0.4,
-    })
-    const body = new THREE.Mesh(bodyGeo, bodyMat)
-    body.position.y = 0.4
-    body.castShadow = true
-    avatarGroup.add(body)
-
-    const headGeo = new THREE.SphereGeometry(0.28, 20, 20)
-    const headMat = new THREE.MeshStandardMaterial({ color: 0xfde047, roughness: 0.3 })
-    const head = new THREE.Mesh(headGeo, headMat)
-    head.position.y = 1.05
-    head.castShadow = true
-    avatarGroup.add(head)
-
-    // Floating Holographic Indicator Ring
-    const ringGeo = new THREE.RingGeometry(0.5, 0.65, 32)
-    const ringMat = new THREE.MeshBasicMaterial({
-      color: new THREE.Color(agentColor),
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.8,
-    })
-    const ring = new THREE.Mesh(ringGeo, ringMat)
-    ring.rotation.x = -Math.PI / 2
-    ring.position.y = 0.04
-    avatarGroup.add(ring)
-
-    group.add(avatarGroup)
-
-    // Raycast Bounding Box for Agent
-    const hitBox = new THREE.Mesh(
-      new THREE.BoxGeometry(3.0, 2.5, 2.5),
-      new THREE.MeshBasicMaterial({ visible: false })
-    )
-    hitBox.position.y = 1.2
-    hitBox.userData = { character: char, ring, group }
-    group.add(hitBox)
-
-    agentMeshes.push(hitBox)
-    scene.add(group)
   })
 }
 
@@ -931,7 +1135,7 @@ function selectAgentFromSearch(char) {
 
 function focusCameraOnAgent(char) {
   const targetX = char.position_x
-  const targetY = 1.2
+  const targetY = char.position_y || 0.42
   const targetZ = char.position_z
 
   gsap.to(camera.position, {
@@ -940,18 +1144,22 @@ function focusCameraOnAgent(char) {
     z: targetZ + 7.5,
     duration: 1.5,
     ease: 'power3.inOut',
-    onUpdate: () => camera.lookAt(targetX, targetY, targetZ),
+    onUpdate: () => camera.lookAt(targetX, targetY + 0.8, targetZ),
   })
 }
 
 function focusCameraOnBuilding(b) {
+  const bHeight = b.buildingHeight || 12
+  const camY = Math.max(16, bHeight * 0.75 + 5)
+  const camZ = b.z + Math.max(22, bHeight * 0.7 + 14)
+
   gsap.to(camera.position, {
     x: b.x,
-    y: 18,
-    z: b.z + 24,
+    y: camY,
+    z: camZ,
     duration: 1.5,
     ease: 'power3.inOut',
-    onUpdate: () => camera.lookAt(b.x, 5, b.z),
+    onUpdate: () => camera.lookAt(b.x, bHeight * 0.35, b.z),
   })
 }
 
@@ -980,8 +1188,8 @@ function resetCamera() {
   currentZone.value = 'all'
   gsap.to(camera.position, {
     x: 0,
-    y: 75,
-    z: 95,
+    y: 85,
+    z: 105,
     duration: 1.5,
     ease: 'power2.out',
     onUpdate: () => camera.lookAt(0, 0, 5),

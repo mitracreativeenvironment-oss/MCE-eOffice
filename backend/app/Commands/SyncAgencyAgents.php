@@ -44,7 +44,7 @@ class SyncAgencyAgents extends BaseCommand
             'paid-media'         => ['zone' => 'Front Avenue',         'x' =>  34.0, 'z' =>  28.0, 'label' => 'Paid Media & Growth Tower'],
 
             // Zone 2: Tech & Defense Quad (Z = +10)
-            'engineering'        => ['zone' => 'Tech & Defense Quad',  'x' => -34.0, 'z' =>  10.0, 'label' => 'Core Engineering Cyber Tower'],
+            'engineering'        => ['zone' => 'Tech & Defense Quad',  'x' => -38.0, 'z' =>  10.0, 'label' => 'Core Engineering Cyber Tower'],
             'security'           => ['zone' => 'Tech & Defense Quad',  'x' => -11.0, 'z' =>  10.0, 'label' => 'Security Operations Bunker'],
             'testing'            => ['zone' => 'Tech & Defense Quad',  'x' =>  11.0, 'z' =>  10.0, 'label' => 'QA & Stress Proving Lab'],
             'gis'                => ['zone' => 'Tech & Defense Quad',  'x' =>  34.0, 'z' =>  10.0, 'label' => 'Geospatial & Satellite Dome'],
@@ -55,13 +55,13 @@ class SyncAgencyAgents extends BaseCommand
             'game-development'   => ['zone' => 'Creative & Business',  'x' =>  11.0, 'z' => -10.0, 'label' => 'Interactive Game Studio'],
             'finance'            => ['zone' => 'Creative & Business',  'x' =>  34.0, 'z' => -10.0, 'label' => 'Finance & Wealth Tower'],
 
-            // Zone 4: Beachfront Promenade (Ocean View, Z = -30)
-            'academic'           => ['zone' => 'Beachfront Promenade', 'x' => -36.0, 'z' => -30.0, 'label' => 'Academic Rotunda Library'],
-            'research'           => ['zone' => 'Beachfront Promenade', 'x' => -22.0, 'z' => -30.0, 'label' => 'Quantum Research Laboratory'],
-            'spatial-computing'  => ['zone' => 'Beachfront Promenade', 'x' =>  -7.0, 'z' => -30.0, 'label' => 'Spatial Computing XR Lab'],
-            'specialized'        => ['zone' => 'Beachfront Promenade', 'x' =>   7.0, 'z' => -30.0, 'label' => 'Strategic Innovation Spire'],
-            'healthcare'         => ['zone' => 'Beachfront Promenade', 'x' =>  22.0, 'z' => -30.0, 'label' => 'Biophilic Healthcare Pavilion'],
-            'project-management' => ['zone' => 'Beachfront Promenade', 'x' =>  36.0, 'z' => -30.0, 'label' => 'Project Management Command'],
+            // Zone 4: Beachfront Promenade (Ocean View, Z = -31)
+            'academic'           => ['zone' => 'Beachfront Promenade', 'x' => -40.0, 'z' => -31.0, 'label' => 'Academic Rotunda Library'],
+            'research'           => ['zone' => 'Beachfront Promenade', 'x' => -24.0, 'z' => -31.0, 'label' => 'Quantum Research Laboratory'],
+            'spatial-computing'  => ['zone' => 'Beachfront Promenade', 'x' =>  -8.0, 'z' => -31.0, 'label' => 'Spatial Computing XR Lab'],
+            'specialized'        => ['zone' => 'Beachfront Promenade', 'x' =>   8.0, 'z' => -31.0, 'label' => 'Strategic Innovation Spire'],
+            'healthcare'         => ['zone' => 'Beachfront Promenade', 'x' =>  26.0, 'z' => -31.0, 'label' => 'Biophilic Healthcare Pavilion'],
+            'project-management' => ['zone' => 'Beachfront Promenade', 'x' =>  42.0, 'z' => -31.0, 'label' => 'Project Management Command'],
         ];
 
         CLI::write("Syncing 18 Campus Divisions...", 'cyan');
@@ -200,18 +200,39 @@ class SyncAgencyAgents extends BaseCommand
             $db->table('office_rooms')->insert($roomData);
 
             $divAgents = $agentsByDivision[$divId] ?? [];
-            $cols = 3; // 3 desks per row in building open terrace
-            $spacingX = 3.6;
-            $spacingZ = 3.2;
+            $count = count($divAgents);
+
+            // Determine columns based on headcount
+            if ($count <= 6) {
+                $cols = 3;
+            } elseif ($count <= 12) {
+                $cols = 4;
+            } elseif ($count <= 24) {
+                $cols = 6;
+            } elseif ($count <= 45) {
+                $cols = 7;
+            } else {
+                $cols = 9; // For 59 (Specialized) and 66 (Engineering)
+            }
+
+            $rows = (int) ceil($count / $cols);
+
+            // Proportional terrace dimension based on team size
+            $t = min(1.0, max(0.0, ($count - 5) / (66 - 5)));
+            $terraceWidth = 13.0 + pow($t, 0.7) * 21.0;
+            $terraceDepth = 12.0 + pow($t, 0.7) * 18.0;
+
+            $spacingX = ($terraceWidth * 0.82) / $cols;
+            $spacingZ = min(2.4, ($terraceDepth * 0.55) / max(1, $rows));
 
             foreach ($divAgents as $idx => $agent) {
                 $col = $idx % $cols;
-                $row = floor($idx / $cols);
+                $row = (int) floor($idx / $cols);
 
-                // Cluster desks around the building's base
-                $deskX = $b['x'] + ($col - ($cols - 1) / 2) * $spacingX;
-                $deskZ = $b['z'] + ($row * $spacingZ) - 4.5;
-                $deskY = 0.0;
+                // Cluster desks proportionally on the open-air/glass terrace of the building
+                $deskX = $b['x'] + ($col - ($cols - 1) / 2.0) * $spacingX;
+                $deskZ = $b['z'] + ($terraceDepth * 0.12) + ($row - ($rows - 1) / 2.0) * $spacingZ;
+                $deskY = 0.42;
 
                 $deskId = $this->generateUuid();
                 $deskCode = strtoupper(substr($divId, 0, 3)) . "-B" . ($idx + 1);
