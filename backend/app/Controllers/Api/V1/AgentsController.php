@@ -114,3 +114,4 @@ class AgentsController extends BaseApiController
         return $this->success($divisions, 'Divisions retrieved.');
     }
 }
+

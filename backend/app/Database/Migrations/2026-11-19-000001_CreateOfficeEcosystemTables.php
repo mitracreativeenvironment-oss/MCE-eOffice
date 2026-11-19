@@ -399,3 +399,4 @@ class CreateOfficeEcosystemTables extends Migration
         $this->forge->dropTable('divisions', true);
     }
 }
+

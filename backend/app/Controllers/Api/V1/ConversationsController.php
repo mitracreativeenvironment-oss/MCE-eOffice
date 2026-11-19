@@ -321,3 +321,4 @@ class ConversationsController extends BaseApiController
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 }
+

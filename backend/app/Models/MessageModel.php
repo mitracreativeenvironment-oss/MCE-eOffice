@@ -24,3 +24,4 @@ class MessageModel extends Model
 
     protected $useTimestamps = false;
 }
+

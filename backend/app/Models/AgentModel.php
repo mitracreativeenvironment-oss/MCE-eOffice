@@ -46,3 +46,4 @@ class AgentModel extends Model
         return $builder->findAll();
     }
 }
+

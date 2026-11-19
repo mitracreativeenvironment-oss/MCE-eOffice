@@ -9,11 +9,11 @@ class SyncAgencyAgents extends BaseCommand
 {
     protected $group       = 'Agency';
     protected $name        = 'agency:sync';
-    protected $description = 'Sync agency-agents catalog, divisions, and 3D office spatial desks into MySQL';
+    protected $description = 'Sync agency-agents catalog, divisions, and 3D Coastal Office Campus into MySQL';
 
     public function run(array $params)
     {
-        CLI::write("===> Starting Agency Agents & 3D Spatial Sync...", 'yellow');
+        CLI::write("===> Starting Strategic Coastal Campus & Agent Sync...", 'yellow');
 
         $db = \Config\Database::connect();
 
@@ -31,45 +31,52 @@ class SyncAgencyAgents extends BaseCommand
         $divisionsData = json_decode(file_get_contents($divisionsPath), true);
         $divisionsMap = $divisionsData['divisions'] ?? [];
 
-        // Floor mapping for the 18 divisions
-        $floorMapping = [
-            // Floor 1: Public, Operations & Client Facing
-            'support'            => 1,
-            'sales'              => 1,
-            'marketing'          => 1,
-            'paid-media'         => 1,
-            // Floor 2: Engineering & Deep Infrastructure
-            'engineering'        => 2,
-            'security'           => 2,
-            'testing'            => 2,
-            'gis'                => 2,
-            // Floor 3: Product, Design & Creative Studio
-            'product'            => 3,
-            'design'             => 3,
-            'game-development'   => 3,
-            'finance'            => 3,
-            // Floor 4: Strategy, Spatial & Innovation
-            'academic'           => 4,
-            'spatial-computing'  => 4,
-            'project-management' => 4,
-            'research'           => 4,
-            'healthcare'         => 4,
-            'specialized'        => 4,
+        // Divisional building layout across the 4 Campus Zones:
+        // - Zone 1: Front Boulevard (facing Highway)
+        // - Zone 2: Tech & Defense Quad
+        // - Zone 3: Creative & Business Plaza
+        // - Zone 4: Beachfront Oceanfront Promenade
+        $campusBuildings = [
+            // Zone 1: Front Avenue (Near Highway, Z = +28)
+            'marketing'          => ['zone' => 'Front Avenue',         'x' => -34.0, 'z' =>  28.0, 'label' => 'Marketing Creative Pavilion'],
+            'support'            => ['zone' => 'Front Avenue',         'x' => -11.0, 'z' =>  28.0, 'label' => 'Customer Care & Welcome Center'],
+            'sales'              => ['zone' => 'Front Avenue',         'x' =>  11.0, 'z' =>  28.0, 'label' => 'Global Sales Executive Lounge'],
+            'paid-media'         => ['zone' => 'Front Avenue',         'x' =>  34.0, 'z' =>  28.0, 'label' => 'Paid Media & Growth Tower'],
+
+            // Zone 2: Tech & Defense Quad (Z = +10)
+            'engineering'        => ['zone' => 'Tech & Defense Quad',  'x' => -34.0, 'z' =>  10.0, 'label' => 'Core Engineering Cyber Tower'],
+            'security'           => ['zone' => 'Tech & Defense Quad',  'x' => -11.0, 'z' =>  10.0, 'label' => 'Security Operations Bunker'],
+            'testing'            => ['zone' => 'Tech & Defense Quad',  'x' =>  11.0, 'z' =>  10.0, 'label' => 'QA & Stress Proving Lab'],
+            'gis'                => ['zone' => 'Tech & Defense Quad',  'x' =>  34.0, 'z' =>  10.0, 'label' => 'Geospatial & Satellite Dome'],
+
+            // Zone 3: Creative & Business Plaza (Z = -10)
+            'product'            => ['zone' => 'Creative & Business',  'x' => -34.0, 'z' => -10.0, 'label' => 'Product Discovery Atrium'],
+            'design'             => ['zone' => 'Creative & Business',  'x' => -11.0, 'z' => -10.0, 'label' => 'Avant-Garde Design Pavilion'],
+            'game-development'   => ['zone' => 'Creative & Business',  'x' =>  11.0, 'z' => -10.0, 'label' => 'Interactive Game Studio'],
+            'finance'            => ['zone' => 'Creative & Business',  'x' =>  34.0, 'z' => -10.0, 'label' => 'Finance & Wealth Tower'],
+
+            // Zone 4: Beachfront Promenade (Ocean View, Z = -30)
+            'academic'           => ['zone' => 'Beachfront Promenade', 'x' => -36.0, 'z' => -30.0, 'label' => 'Academic Rotunda Library'],
+            'research'           => ['zone' => 'Beachfront Promenade', 'x' => -22.0, 'z' => -30.0, 'label' => 'Quantum Research Laboratory'],
+            'spatial-computing'  => ['zone' => 'Beachfront Promenade', 'x' =>  -7.0, 'z' => -30.0, 'label' => 'Spatial Computing XR Lab'],
+            'specialized'        => ['zone' => 'Beachfront Promenade', 'x' =>   7.0, 'z' => -30.0, 'label' => 'Strategic Innovation Spire'],
+            'healthcare'         => ['zone' => 'Beachfront Promenade', 'x' =>  22.0, 'z' => -30.0, 'label' => 'Biophilic Healthcare Pavilion'],
+            'project-management' => ['zone' => 'Beachfront Promenade', 'x' =>  36.0, 'z' => -30.0, 'label' => 'Project Management Command'],
         ];
 
-        CLI::write("Syncing 18 Divisions...", 'cyan');
+        CLI::write("Syncing 18 Campus Divisions...", 'cyan');
         $now = date('Y-m-d H:i:s');
 
         foreach ($divisionsMap as $id => $info) {
-            $floor = $floorMapping[$id] ?? 1;
+            $building = $campusBuildings[$id] ?? ['zone' => 'Central Campus', 'x' => 0.0, 'z' => 0.0, 'label' => ucfirst($id)];
             $existing = $db->table('divisions')->where('id', $id)->get()->getRowArray();
             $data = [
                 'id'          => $id,
                 'label'       => $info['label'] ?? ucfirst($id),
                 'icon_name'   => $info['icon'] ?? 'Briefcase',
                 'color_hex'   => $info['color'] ?? '#3B82F6',
-                'floor_level' => $floor,
-                'description' => "Divisi {$info['label']} yang beroperasi di Lantai {$floor}.",
+                'floor_level' => 1,
+                'description' => "Gedung Kantor {$building['label']} di zona {$building['zone']}.",
                 'updated_at'  => $now,
             ];
 
@@ -101,21 +108,20 @@ class SyncAgencyAgents extends BaseCommand
 
         CLI::write("Syncing " . count($agentsList) . " Agent Profiles...", 'cyan');
 
-        // Model tier mapping based on division / slug keywords
         $getModelTier = function ($division, $slug) {
             if ($division === 'security' || str_contains($slug, 'architect') || str_contains($slug, 'lead')) {
-                return 'reasoning'; // Tier 1: Claude 3.7 Sonnet / DeepSeek R1
+                return 'reasoning';
             }
             if ($division === 'engineering' || $division === 'game-development' || $division === 'gis') {
-                return 'coding'; // Tier 2: DeepSeek Chat V3 / Claude 3.5
+                return 'coding';
             }
             if ($division === 'design' || $division === 'spatial-computing') {
-                return 'multimodal'; // Tier 3: Claude 3.5 Sonnet
+                return 'multimodal';
             }
             if ($division === 'product' || $division === 'project-management' || $division === 'finance') {
-                return 'planning'; // Tier 4: Claude 3.7 / Claude 3.5
+                return 'planning';
             }
-            return 'fast'; // Tier 5: Gemini 2.5 Flash / Fast LLM
+            return 'fast';
         };
 
         $syncedAgents = 0;
@@ -124,7 +130,6 @@ class SyncAgencyAgents extends BaseCommand
             if (!$slug) continue;
 
             $divisionId = $agent['division'] ?? 'specialized';
-            // Verify division exists in map
             if (!isset($divisionsMap[$divisionId])) {
                 $divisionId = 'specialized';
             }
@@ -158,90 +163,58 @@ class SyncAgencyAgents extends BaseCommand
         }
         CLI::write("✓ Synced {$syncedAgents} Agent Profiles into MySQL.", 'green');
 
-        // 3. Spatial Rooms & Desks Generation for 3D Office
-        CLI::write("Generating 3D Spatial Layout (Rooms, Desks, Characters)...", 'cyan');
+        // 3. Spatial Campus Buildings & Workstations Generation
+        CLI::write("Generating 18 Campus Standalone Buildings & Agent Workstations...", 'cyan');
 
-        // Clean up previous spatial records if needed or update existing
         $db->table('characters')->emptyTable();
         $db->table('office_desks')->emptyTable();
         $db->table('office_rooms')->emptyTable();
 
-        // 4 Floors height: Floor 1: 0, Floor 2: 14, Floor 3: 28, Floor 4: 42
-        $floorY = [1 => 0.0, 2 => 14.0, 3 => 28.0, 4 => 42.0];
-
-        // Group agents by division
         $agentsByDivision = [];
         $allAgents = $db->table('agent_profiles')->orderBy('division_id', 'ASC')->orderBy('name', 'ASC')->get()->getResultArray();
         foreach ($allAgents as $a) {
             $agentsByDivision[$a['division_id']][] = $a;
         }
 
-        // Room offsets per floor (grid 2x2 or 2x3 per floor)
-        $divisionRoomOffsets = [
-            // Floor 1 (4 divisions: 2x2 grid)
-            'support'            => ['x' => -24.0, 'z' => -18.0],
-            'sales'              => ['x' =>  24.0, 'z' => -18.0],
-            'marketing'          => ['x' => -24.0, 'z' =>  18.0],
-            'paid-media'         => ['x' =>  24.0, 'z' =>  18.0],
-            // Floor 2 (4 divisions: 2x2 grid)
-            'engineering'        => ['x' => -24.0, 'z' => -18.0],
-            'security'           => ['x' =>  24.0, 'z' => -18.0],
-            'testing'            => ['x' => -24.0, 'z' =>  18.0],
-            'gis'                => ['x' =>  24.0, 'z' =>  18.0],
-            // Floor 3 (4 divisions: 2x2 grid)
-            'product'            => ['x' => -24.0, 'z' => -18.0],
-            'design'             => ['x' =>  24.0, 'z' => -18.0],
-            'game-development'   => ['x' => -24.0, 'z' =>  18.0],
-            'finance'            => ['x' =>  24.0, 'z' =>  18.0],
-            // Floor 4 (6 divisions: 3x2 grid)
-            'academic'           => ['x' => -28.0, 'z' => -18.0],
-            'spatial-computing'  => ['x' =>   0.0, 'z' => -18.0],
-            'project-management' => ['x' =>  28.0, 'z' => -18.0],
-            'research'           => ['x' => -28.0, 'z' =>  18.0],
-            'healthcare'         => ['x' =>   0.0, 'z' =>  18.0],
-            'specialized'        => ['x' =>  28.0, 'z' =>  18.0],
-        ];
-
         $totalDesks = 0;
         $totalCharacters = 0;
 
         foreach ($divisionsMap as $divId => $divInfo) {
-            $floor = $floorMapping[$divId] ?? 1;
+            $b = $campusBuildings[$divId] ?? ['zone' => 'Central Campus', 'x' => 0.0, 'z' => 0.0, 'label' => ucfirst($divId)];
             $roomId = $this->generateUuid();
-            $roomOffset = $divisionRoomOffsets[$divId] ?? ['x' => 0.0, 'z' => 0.0];
-            $yBase = $floorY[$floor] ?? 0.0;
 
             $roomData = [
                 'id'              => $roomId,
                 'division_id'     => $divId,
-                'name'            => "Room " . ($divInfo['label'] ?? ucfirst($divId)),
-                'floor_level'     => $floor,
-                'position_x'      => $roomOffset['x'],
-                'position_y'      => $yBase,
-                'position_z'      => $roomOffset['z'],
-                'camera_target_x' => $roomOffset['x'],
-                'camera_target_y' => $yBase + 2.0,
-                'camera_target_z' => $roomOffset['z'],
+                'name'            => "Gedung {$b['label']}",
+                'floor_level'     => 1,
+                'position_x'      => $b['x'],
+                'position_y'      => 0.0,
+                'position_z'      => $b['z'],
+                'camera_target_x' => $b['x'],
+                'camera_target_y' => 3.5,
+                'camera_target_z' => $b['z'],
                 'created_at'      => $now,
                 'updated_at'      => $now,
             ];
             $db->table('office_rooms')->insert($roomData);
 
             $divAgents = $agentsByDivision[$divId] ?? [];
-            $cols = 4; // 4 desks per row in a room
-            $spacingX = 4.5;
-            $spacingZ = 4.5;
+            $cols = 3; // 3 desks per row in building open terrace
+            $spacingX = 3.6;
+            $spacingZ = 3.2;
 
             foreach ($divAgents as $idx => $agent) {
                 $col = $idx % $cols;
                 $row = floor($idx / $cols);
 
-                $deskX = $roomOffset['x'] + ($col - ($cols - 1) / 2) * $spacingX;
-                $deskZ = $roomOffset['z'] + ($row * $spacingZ) - 6.0;
-                $deskY = $yBase;
+                // Cluster desks around the building's base
+                $deskX = $b['x'] + ($col - ($cols - 1) / 2) * $spacingX;
+                $deskZ = $b['z'] + ($row * $spacingZ) - 4.5;
+                $deskY = 0.0;
 
                 $deskId = $this->generateUuid();
-                $deskCode = strtoupper(substr($divId, 0, 3)) . "-F{$floor}-D" . ($idx + 1);
+                $deskCode = strtoupper(substr($divId, 0, 3)) . "-B" . ($idx + 1);
 
                 $db->table('office_desks')->insert([
                     'id'         => $deskId,
@@ -256,7 +229,6 @@ class SyncAgencyAgents extends BaseCommand
                 ]);
                 $totalDesks++;
 
-                // Create character tied to this agent and desk
                 $charId = $this->generateUuid();
                 $db->table('characters')->insert([
                     'id'                 => $charId,
@@ -272,18 +244,18 @@ class SyncAgencyAgents extends BaseCommand
             }
         }
 
-        CLI::write("✓ Generated " . count($divisionsMap) . " Office Rooms across 4 floors.", 'green');
-        CLI::write("✓ Generated {$totalDesks} Spatial Workstation Desks.", 'green');
-        CLI::write("✓ Allocated {$totalCharacters} 3D Agent Characters at workstations.", 'green');
+        CLI::write("✓ Generated 18 Standalone Divisional Buildings across the Campus.", 'green');
+        CLI::write("✓ Generated {$totalDesks} Spatial Workstations.", 'green');
+        CLI::write("✓ Allocated {$totalCharacters} 3D Agent Characters in their divisional buildings.", 'green');
         CLI::write("=====================================================", 'yellow');
-        CLI::write("Sync complete! 3D Virtual Office & Agent Engine Ready.", 'green');
+        CLI::write("Campus Spatial Sync complete! Coastal Office Complex Ready.", 'green');
     }
 
     private function generateUuid(): string
     {
         $data = random_bytes(16);
-        $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // version 4
-        $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // variant
+        $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+        $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 }

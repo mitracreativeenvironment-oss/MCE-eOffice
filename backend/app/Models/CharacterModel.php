@@ -65,3 +65,4 @@ class CharacterModel extends Model
         ->findAll();
     }
 }
+

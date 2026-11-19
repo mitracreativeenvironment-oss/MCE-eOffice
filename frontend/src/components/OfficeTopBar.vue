@@ -9,10 +9,10 @@
         <h1 class="text-sm font-extrabold tracking-tight text-white flex items-center gap-2">
           MCE-eOffice
           <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-sky-400 border border-blue-500/30">
-            Kantor 3D v2.0
+            Kompleks 3D v2.0
           </span>
         </h1>
-        <p class="text-[11px] text-slate-400 font-medium">Virtual Office & AI Agent Ecosystem</p>
+        <p class="text-[11px] text-slate-400 font-medium">Strategic Coastal Campus • 18 Gedung Divisi</p>
       </div>
     </div>
 

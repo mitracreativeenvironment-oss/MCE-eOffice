@@ -42,3 +42,4 @@ class TaskModel extends Model
         return $builder->orderBy('agent_tasks.created_at', 'DESC')->findAll();
     }
 }
+
