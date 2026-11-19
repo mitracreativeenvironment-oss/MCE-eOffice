@@ -35,4 +35,15 @@ $routes->group('api/v1', ['namespace' => 'App\Controllers\Api\V1'], static funct
     $routes->get('tasks/(:segment)', 'TasksController::show/$1');
     $routes->post('tasks/(:segment)/approve', 'TasksController::approve/$1');
     $routes->post('tasks/(:segment)/reject', 'TasksController::reject/$1');
+
+    // Admin Management Portal Endpoints
+    $routes->get('admin/overview', 'AdminController::overview');
+    $routes->get('admin/agents', 'AdminController::agents');
+    $routes->put('admin/agents/(:segment)', 'AdminController::updateAgent/$1');
+    $routes->put('agents/(:segment)', 'AdminController::updateAgent/$1');
+    $routes->put('admin/divisions/(:segment)', 'AdminController::updateDivision/$1');
+    $routes->put('divisions/(:segment)', 'AdminController::updateDivision/$1');
+    $routes->get('admin/conversations', 'AdminController::conversations');
+    $routes->get('admin/conversations/(:segment)/messages', 'AdminController::conversationMessages/$1');
+    $routes->post('admin/test-inference', 'AdminController::testInference');
 });
